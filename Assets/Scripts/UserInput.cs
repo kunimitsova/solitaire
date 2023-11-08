@@ -41,7 +41,7 @@ public class UserInput : MonoBehaviour {
     }
 
     void Deck() {
-        Debug.Log("Hit the deck");
+        //Debug.Log("Hit the deck");
         solitaire.DealFromTalon();
     }
 
@@ -125,7 +125,9 @@ public class UserInput : MonoBehaviour {
             //Debug.Log("Looking at tableau lastChild = " + lastChild.gameObject.name.ToString());
             newSpot = lastChild.gameObject;
             s2 = newSpot.GetComponent<Selectable>();
-            if ((s1.value == s2.value - 1) || ((s1.value == Constants.KING_VALUE) && (s2.value == 0))) {
+            if ((s1.value == Constants.KING_VALUE) && (s2.value == 0)) {
+                return newSpot;
+            } else if (s1.value == s2.value - 1) {
                 if ((Solitaire.red.Contains(s1.suit) && Solitaire.black.Contains(s2.suit)) || (Solitaire.red.Contains(s2.suit) && Solitaire.black.Contains(s1.suit))  ) {
                     return newSpot;
                 }
@@ -156,6 +158,8 @@ public class UserInput : MonoBehaviour {
         Selectable s1 = cardToStack.GetComponent<Selectable>();
         Selectable s2 = placeToStack.GetComponent<Selectable>();
         int row = s2.row; // the row value that will be given to all the child cards that are moved
+        Transform parent;
+        Transform child;
 
         if (s2.top || s2.inDeckPile) {
             return;
@@ -168,10 +172,12 @@ public class UserInput : MonoBehaviour {
         cardToStack.transform.parent = placeToStack.transform;
 
         s1.row = s2.row;
-
-        foreach (Transform card in cardToStack.transform) {
-            card.GetComponent<Selectable>().row = row;
-            Debug.Log("Card " + card.name + " row=" + card.GetComponent<Selectable>().row.ToString());
+        parent = cardToStack.transform;
+        while (parent.childCount > 0) {
+            child = parent.GetChild(0);
+            child.GetComponent<Selectable>().row = row;
+            Debug.Log("Card " + child.name + " row= " + child.GetComponent<Selectable>().row.ToString());
+            parent = child;
         }
         s1.top = false;
         s1.inDeckPile = false;

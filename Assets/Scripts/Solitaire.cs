@@ -188,6 +188,7 @@ public class Solitaire : MonoBehaviour {
         float xOffset = appInit.xDeckOffset;
         float zOffset = 0f;
         GameObject newCard;
+        Transform child;
 
         if (talon.Count > 0) {
 
@@ -218,8 +219,9 @@ public class Solitaire : MonoBehaviour {
         } else {
             zOffset = Constants.UNDEALT_CARD_Z_OFFSET;
             talon.RemoveAll(GameObject => GameObject == null);
-            foreach (Transform child in deckButton.transform) {
-                Debug.Log("Cards moving from deckButton to Talon = " + child.name + " and there are " + deckButton.transform.childCount.ToString() + " cards in deckButton");
+            while (deckButton.transform.childCount > 0) {
+                child = deckButton.transform.GetChild(0);
+                //Debug.Log("Cards moving from deckButton to Talon = " + child.name + " and there are " + deckButton.transform.childCount.ToString() + " cards in deckButton");
                 child.position = new Vector3(deckButton.transform.position.x, deckButton.transform.position.y, deckButton.transform.position.z + zOffset);
                 BackIntoDeck(child.gameObject);
                 child.SetParent(null);
@@ -270,12 +272,8 @@ public class Solitaire : MonoBehaviour {
     }
 
     public void ResetTable() {
-        UpdateSprite[] cards = FindObjectsOfType<UpdateSprite>();
-        foreach (UpdateSprite card in cards) {
-            Destroy(card.gameObject);
-        }
+        DestroyCards();
         InitTableau();
-        
         Debug.Log("Table reset");
     }
 
@@ -308,6 +306,22 @@ public class Solitaire : MonoBehaviour {
             t1 = t2;
         }
         return t1;
+    }
+
+    void DestroyCards() {
+        UpdateSprite[] cards = FindObjectsOfType<UpdateSprite>();
+        foreach(GameObject card in talon) {
+            if (card.CompareTag(Constants.CARD_TAG)) {
+                Debug.Log("Destroying : " + card.name);
+                Destroy(card);
+            }
+        }
+        foreach (UpdateSprite card in cards) {
+            if (card.CompareTag(Constants.CARD_TAG)) {
+                Debug.Log("Destroying : " + card.name);
+                Destroy(card.gameObject);
+            }
+        }
     }
 
     //public List<List<string>> SortDeckIntoTriples(List<string> sortingDeck) { // it actually sorts deck into groups of whatever TalonDealAmount is
