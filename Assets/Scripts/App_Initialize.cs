@@ -12,7 +12,7 @@ public class App_Initialize : MonoBehaviour {
 
     void Start() {
         talonDealAmount = PlayerPrefs.GetInt(Constants.TALON_DEAL_AMOUNT, 1);
-        leftHandedMode = PlayerPrefs.GetInt(Constants.LEFT_HAND_MODE, 0) == 1; // if leftHandedMode = 1 then it's true otherwise false
+        leftHandedMode = PlayerPrefs.GetInt(Constants.LEFT_HAND_MODE, 1) == 1; // if leftHandedMode = 1 then it's true otherwise false
         initXDeckOffset = leftHandedMode ? Constants.INIT_DECK_X_OFFSET : -Constants.INIT_DECK_X_OFFSET; // offset towards the right in LHM, towards teh left in RHM
         xDeckOffset = leftHandedMode ? Constants.DECK_X_OFFSET : -Constants.DECK_X_OFFSET; // move them toward the right in LHM, toward the left in RHM
     }

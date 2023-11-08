@@ -5,10 +5,15 @@ using UnityEngine;
 public class Constants {
     // card instantiate values
     public const float STACK_Y_OFFSET = -0.25f;
-    public const float INIT_DECK_X_OFFSET = 0.786f;
-    public const float DECK_X_OFFSET = 0.2f;
-    public const float Z_OFFSET = -0.01f;
-    public const float UNDEALT_CARD_Z_OFFSET = 0.01f;  // for cards to stack behind deckButton
+    public const float INIT_DECK_X_OFFSET = 0.686f;
+    public const float DECK_X_OFFSET = 0.22f;
+    public const float Z_OFFSET = -0.02f;
+    public const float UNDEALT_CARD_Z_OFFSET = 0.02f;  // for cards to stack behind deckButton
+
+    // animating movement time values
+    public const float ANIMATE_MOVE_TO_FOUND = 0.3f;
+    public const float ANIMATE_MOVE_TO_STACK = 0.2f;
+    public const float ANIMATE_DEAL_FROM_TALON = 0.1f;
 
     // camera values
     public const float CAMERA_DISTANCE = 10f;

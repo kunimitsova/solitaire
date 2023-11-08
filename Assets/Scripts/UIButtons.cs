@@ -5,11 +5,8 @@ using UnityEngine;
 public class UIButtons : MonoBehaviour {
 
     Solitaire solitaire;
-<<<<<<< HEAD
     App_Initialize appInit;
     public GameObject gameOverUI;
-=======
->>>>>>> parent of 27044600 (initial commit)
 
     private void Start() {
         solitaire = FindObjectOfType<Solitaire>();
@@ -30,7 +27,7 @@ public class UIButtons : MonoBehaviour {
         solitaire.PlayCards();
     }
 
-    public void seeSettings() {
+    public void SeeSettings() {
         gameOverUI.SetActive(false);
         // show Settings menu
 
