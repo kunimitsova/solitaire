@@ -31,23 +31,6 @@ public class UpdateSprite : MonoBehaviour {
         ShowCardFace();
     }
 
-    // Update is called once per frame
-    void Update() {
-        //if (selectable.faceUp) {
-        //    spriteRenderer.sprite = cardFace;
-        //} else {
-        //    spriteRenderer.sprite = cardBack;
-        //}
-        //// ************* delete this when we change to touch and drag only inputs!! 
-        //if (userInput.slot1) {
-        //    if (name == userInput.slot1.name) {
-        //        spriteRenderer.color = Color.yellow;
-        //    }
-        //    else {
-        //        spriteRenderer.color = Color.white;
-        //    }
-        //}
-    }
     public void ShowCardFace() {
         selectable = this.GetComponent<Selectable>();
         if (selectable.faceUp) {

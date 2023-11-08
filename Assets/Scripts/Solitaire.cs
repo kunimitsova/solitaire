@@ -51,18 +51,13 @@ public class Solitaire : MonoBehaviour {
         bottoms = new List<string>[] { bottom0, bottom1, bottom2, bottom3, bottom4, bottom5, bottom6 };
         appInit = FindObjectOfType<App_Initialize>();
 
-        localDealAmount = 3; // for testing purposes. Actua value should be :  appInit.talonDealAmount; ******************************************************************
+        localDealAmount = 3; // for testing purposes. Actua value should be :  appInit.TalonDealAmount; ******************************************************************
 
         InitTableau();
 
         PrepDeck();
         // make the new deck list once
         PlayCards();
-    }
-
-    // Update is called once per frame
-    void Update() {
-        
     }
 
     public void InitTableau() {
@@ -184,51 +179,53 @@ public class Solitaire : MonoBehaviour {
     public void DealFromTalon() {
         int dealAtOnceAmount = localDealAmount;
         // pull cards from the top of the stack under deckbutton - they are in the List called talon; not worrying about timing right now, we will add animation or at least lerp later
-        float xInitOffset = appInit.initXDeckOffset;
-        float xOffset = appInit.xDeckOffset;
-        float zOffset = 0f;
+        float xOffset = appInit.InitXDeckOffset; // the x-offset o the first card is Init x-offset, this is how much offset for this 'round' of dealing
+        float incrXOffset = appInit.XDeckOffset; // xOffset will be different depending on LeftHandedMode
+        float incrZOffset = Constants.Z_OFFSET; // zOffset is coming towards the camera when the card is dealt and going away when they go back into the deck (UNDEALT_CARD_Z_OFFSET)
         GameObject newCard;
         Transform child;
 
         if (talon.Count > 0) {
 
-            SlideIntoStack(deckButton.transform, deckButton.transform.position.x + xInitOffset); // align the cards into a stack under the newly dealt talon cards
-
-            talonZOffset += Constants.Z_OFFSET; // add some space between the previous card and the card we are about to move....
+            SlideIntoStack(deckButton.transform, deckButton.transform.position.x + appInit.InitXDeckOffset); // align the cards into a stack under the newly dealt talon cards
+            
+            talonZOffset += incrZOffset; // add some space between the previous card and the card we are about to move....
 
             // deal the proper amount of cards out
-            xOffset = appInit.initXDeckOffset; // starting offset from deckButton
-            zOffset = talonZOffset; // starting offset from deckButton
+
             for (int i = 0; i < dealAtOnceAmount; i++) {
                 if (talon.Count > 0) {
                     newCard = talon[0]; // because talon[0] is always the top card.
                                         //newCard.transform.position = new Vector3(deckButton.transform.position.x + xOffset, deckButton.transform.position.y, deckButton.transform.position.z + zOffset);
-                    LeanTween.move(newCard, new Vector3(deckButton.transform.position.x + xOffset, deckButton.transform.position.y, deckButton.transform.position.z + zOffset), Constants.ANIMATE_DEAL_FROM_TALON);
+                    LeanTween.move(newCard, new Vector3(deckButton.transform.position.x + xOffset, deckButton.transform.position.y, deckButton.transform.position.z + talonZOffset), Constants.ANIMATE_DEAL_FROM_TALON);
+                    
                     PullFromDeck(newCard);
                     newCard.transform.parent = deckButton.transform;
                     talon.Remove(newCard); // does this remove the slot it's in or just the object attached to that slot?
                                            //Debug.Log("The removed card was " + newCard.name.ToString() + " and the current talon[0] card is : " + talon[0].name.ToString());
 
-                    zOffset += Constants.Z_OFFSET;
-                    xOffset += Constants.DECK_X_OFFSET;
+                    talonZOffset += incrZOffset;
+                    xOffset += incrXOffset;
+
+                } else {
+                    break;
                 }
             }
             talon.RemoveAll(GameObject => GameObject == null); // this should remove all the empty slots, so now the topmost card is Talon[0]
 
             deckButton.GetComponent<TalonSpriteUpdate>().setTalonSprite(!(talon.Count > 0)); // there are no cards in the talon, then set empty sprite.
         } else {
-            zOffset = Constants.UNDEALT_CARD_Z_OFFSET;
+            float zOffset = Constants.UNDEALT_CARD_Z_OFFSET;
             talon.RemoveAll(GameObject => GameObject == null);
             while (deckButton.transform.childCount > 0) {
                 child = deckButton.transform.GetChild(0);
-                //Debug.Log("Cards moving from deckButton to Talon = " + child.name + " and there are " + deckButton.transform.childCount.ToString() + " cards in deckButton");
                 child.position = new Vector3(deckButton.transform.position.x, deckButton.transform.position.y, deckButton.transform.position.z + zOffset);
                 BackIntoDeck(child.gameObject);
                 child.SetParent(null);
                 talon.Add(child.gameObject);
                 zOffset += Constants.UNDEALT_CARD_Z_OFFSET;
             }
-            talonZOffset = 0f;
+            talonZOffset = 0f; // the deal will reset at z = 0
         }
     }
 

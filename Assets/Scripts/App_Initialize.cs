@@ -4,11 +4,40 @@ using UnityEngine;
 
 public class App_Initialize : MonoBehaviour {
 
-    public int talonDealAmount; // the number of cards to deal from the talon each time
-    public bool leftHandedMode;
+    private int talonDealAmount; // the number of cards to deal from the talon each time
+    public int TalonDealAmount { // good example of property
+        get {
+            return talonDealAmount;
+        }
+        set {
+            talonDealAmount = value;
+        }
+    }
+    private bool leftHandedMode;
+    public bool LeftHandedMode {
+        get {
+            return leftHandedMode;
+        }
+        set {
+            leftHandedMode = value;
+        }
+    }
 
-    public float initXDeckOffset;
-    public float xDeckOffset;
+    private float initXDeckOffset;
+    public float InitXDeckOffset {
+        get {
+            return initXDeckOffset;
+        }
+    }
+    private float xDeckOffset;
+    public float XDeckOffset { 
+        get {
+            return xDeckOffset;
+        }
+        set {
+            xDeckOffset = value;
+        }
+    }
 
     void Start() {
         talonDealAmount = PlayerPrefs.GetInt(Constants.TALON_DEAL_AMOUNT, 1);

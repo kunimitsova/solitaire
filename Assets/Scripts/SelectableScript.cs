@@ -25,9 +25,4 @@ public class Selectable : MonoBehaviour {
             //print($"valueString is {valueString} value is {value}"); // for testing
         }
     }
-
-    // Update is called once per frame
-    void Update() {
-        
-    }
 }
