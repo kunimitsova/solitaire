@@ -276,15 +276,18 @@ public class Solitaire : MonoBehaviour {
 
     public bool Blocked(GameObject selected) {
         Selectable s2 = selected.GetComponent<Selectable>();
-        if (s2.inDeckPile) {
-            if (s2.name == Utilities.FindYoungestChild(deckButton.transform).name) {
+        Transform parent = selected.transform.parent;
+        if (s2.inDeckPile || s2.top) {
+            //Debug.Log("The card either inDeckPile or top is : " + selected.name);
+            if (s2.name == Utilities.FindYoungestChild(parent.transform).name) {
                 return false;
             }
             else {
                 return true;
             }
         }
-        else {
+        else  {
+            //Debug.Log("The card not in top or deckpile is : " + selected.name);
             if (s2.faceUp) {
                 return false;
             }
@@ -310,120 +313,43 @@ public class Solitaire : MonoBehaviour {
         }
     }
 
-    //public List<List<string>> SortDeckIntoTriples(List<string> sortingDeck) { // it actually sorts deck into groups of whatever TalonDealAmount is
-    //    // also I kind don't like how this works, anyway probably keep it since it DOES work and I don't have to re-design anything
+    public bool WinCondition() {
+        GameObject card;
+        int foundationsCompleted = 0;
+        bool winCondition = false;
 
-    //    int sets = sortingDeck.Count / appInit.talonDealAmount;
-    //    int remainder = sortingDeck.Count % appInit.talonDealAmount;
-    //    List<List<string>> cardSets = new List<List<string>>();
-    //    int modifier;
-    //    int deckLoc = 0;
+        for (int i = 0; i < topPos.Length; i++) {
+            // check if there is a king on all stacks
+            card = Utilities.FindYoungestChild(topPos[i].transform).gameObject;
+            if (card.GetComponent<Selectable>().value == Constants.KING_VALUE) {
+                foundationsCompleted++;
+            }
+        }
+        winCondition = foundationsCompleted == 4;
+        return winCondition;
+    }
 
-    //    for (int i = 0; i < sets; i++) {
-    //        List<string> myTrips = new List<string>();
-    //        for (int j = 0; j < appInit.talonDealAmount; j++) {
-    //            myTrips.Add(sortingDeck[j + deckLoc]);
-    //        }
-    //        cardSets.Add(myTrips);
-    //        deckLoc += appInit.talonDealAmount;
-    //    }
-    //    if (remainder != 0) {
-    //        List<string> myRemainders = new List<string>();
-    //        modifier = 0; // modifier to iterate through the remainder cards;
-    //        for (int k = 0; k < remainder; k++) {
-    //            myRemainders.Add(sortingDeck[sortingDeck.Count - remainder + modifier]);
-    //            modifier++;
-    //        }
-    //        cardSets.Add(myRemainders);
-    //    }
-    //    return cardSets;
-    //}
+    public bool TableauStackCondition(GameObject cardToMove, GameObject placeToMove ) { // placeToMove might be a non-card gameobject
+        // when is stacking OK
+        Selectable s1 = cardToMove.GetComponent<Selectable>();
+        Selectable s2 = placeToMove.GetComponent<Selectable>();
 
-    //public void DealFromDeck() {
+        if (s1.value == Constants.KING_VALUE && s2.value == 0) { // moving a King to an open spot
+            return true;
+        }
+        bool b1 = red.Contains(s1.suit) && black.Contains(s2.suit);
+        bool b2 = black.Contains(s1.suit) && red.Contains(s2.suit);
 
-    //    foreach (Transform child in deckButton.transform) { // slides all dealt cards under the first card in the TripsOnDisplay stack so they're accessible only after all TripsOnDisplay are used
-    //        if (child.CompareTag(Constants.CARD_TAG)) {
-    //            child.position = new Vector3(deckButton.transform.position.x + Constants.INIT_DECK_X_OFFSET, child.position.y, child.position.z);
-    //        }
-    //    }
+        return (b1 || b2) && (s1.value == s2.value - 1) ; // this should be true when there is alternating red/black
+    }
 
-    //    talonZOffset += Constants.Z_OFFSET; // make sure the next card is not stacked on the same place as any other cards???????????????????????????????????????????????????
-    //    Debug.Log("The current value of talonZOffset = " + talonZOffset.ToString());
-
-    //    if (deckLocation < triples) {
-    //        foreach (string card in tripsOnDisplay) {
-    //            deck.Remove(card);
-    //            discardPile.Add(card);
-    //        }
-    //        tripsOnDisplay.Clear();
-
-    //        StartCoroutine(DealFromTalon(deckTrips[deckLocation], 0, deckButton.transform.position, Constants.INIT_DECK_X_OFFSET, 0f, talonZOffset, deckButton.transform, incrXOffset: Constants.DECK_X_OFFSET, incrZOffset: Constants.Z_OFFSET));
-    //        Debug.Log("After coroutine, the current value of talonZOffset is : " + talonZOffset.ToString());
-
-    //        deckLocation++;
-    //        if (deckLocation >= triples) {
-    //            deckButton.GetComponent<TalonSpriteUpdate>().setTalonSprite(true);
-    //        }
-    //    } else {
-    //        deckButton.GetComponent<TalonSpriteUpdate>().setTalonSprite(false);
-    //        RestackTopDeck();
-    //    }
-    //}
-
-    //IEnumerator DealFromTalon(List<string> cardSet, int sortOrder, Vector3 startPos, float initXOffset, float initYOffset, float initZOffset, Transform parentObj, float incrXOffset = 0f, float incrYOffset = 0f, float incrZOffset = 0f) {
-    //   // this is set up to potentially be usable by both deal subs but i don't have an elegant way to apply the correct 
-    //   // selectable settings and other stuff without kindof knowing which dealing this is.
-    //    float xOffset = initXOffset;
-    //    float yOffset = initYOffset;
-    //    float zOffset = initZOffset;
-    //    Vector3 currPos = startPos;
-    //    foreach (string card in cardSet) {
-    //        yield return new WaitForSeconds(0.01f);
-    //        GameObject newTopCard = Instantiate(cardPrefab, new Vector3(currPos.x + xOffset, currPos.y + yOffset, currPos.z + zOffset), Quaternion.identity, parentObj);
-    //        newTopCard.name = card;
-    //        tripsOnDisplay.Add(card);
-    //        newTopCard.GetComponent<Selectable>().faceUp = true;
-    //        newTopCard.GetComponent<UpdateSprite>().ShowCardFace();
-    //        newTopCard.GetComponent<Selectable>().inDeckPile = true;
-
-    //        if (incrXOffset != 0) {
-    //            xOffset = incrXOffset;
-    //        }
-    //        if (incrYOffset != 0) {
-    //            yOffset = incrYOffset;
-    //        }
-    //        if (incrZOffset != 0) {
-    //            zOffset = incrZOffset;
-    //        }
-    //        currPos = newTopCard.transform.position;
-    //    }
-    //}
-
-    //void RestackTopDeck() {
-    //    // don't forget to reset talonZOffset
-    //    // also don't destroy gameobjects.
-    //    deck.Clear();
-    //    Debug.Log("The number of items still in the deck list at the beginnig of Restack is : " + deck.Count.ToString());
-    //    Debug.Log("The number of items in Discard Pile at the beginning of Restack is : " + discardPile.Count.ToString());
-    //    foreach (Transform child in deckButton.transform) {
-    //        if (child.CompareTag(Constants.CARD_TAG)) {
-    //            Destroy(child.gameObject);
-    //        }
-    //    }
-    //    foreach (string card in discardPile) {
-    //        deck.Add(card);
-    //    }
-    //    Debug.Log("The number of cards added to the deck (midway in Restack) is : " + deck.Count.ToString());
-    //    discardPile.Clear();
-    //    Debug.Log("the number of cards still in Discard Pile (midway to Restack) is : " + discardPile.Count.ToString());
-    //    foreach (List<string> trip in deckTrips) {
-    //        trip.Clear();
-    //    }
-    //    deckTrips.Clear();
-    //    Debug.Log("The number of DeckTrips before SortDeckIntoTriples is : " + deckTrips.Count.ToString());
-    //    deckTrips = SortDeckIntoTriples(deck);
-
-    //    triples = deckTrips.Count();
-    //    deckLocation = 0;
-    //}
+    public bool FoundationCondition(GameObject cardToMove, GameObject placeToMove) {
+        Selectable s1 = cardToMove.GetComponent<Selectable>();
+        Selectable s2 = placeToMove.GetComponent<Selectable>();
+        //Debug.Log("Foundation condition is called");
+        if (s1.value == Constants.ACE_VALUE && s2.value == 0) { // Stack an Ace onto the empty foundation
+            return true;
+        }
+        return (s1.suit == s2.suit) && (s1.value == s2.value + 1);
+    }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class UserInput : MonoBehaviour {
 
@@ -7,6 +8,12 @@ public class UserInput : MonoBehaviour {
     public GameObject slot1;
 
     private Solitaire solitaire;
+
+    delegate bool StackCondition(GameObject cardToMove, GameObject placeToMove); // let's practice using delegates....
+    StackCondition stackCondition;
+
+    delegate void StackCards(GameObject cardToStack, GameObject placeToStack);
+    StackCards stackCards;
 
     void Start() {
         solitaire = FindObjectOfType<Solitaire>();
@@ -47,7 +54,7 @@ public class UserInput : MonoBehaviour {
 
     void Card(GameObject selected) {
         // card click actions
-
+        //Debug.Log("Card hit is : " + selected.name);
         // if the card is not blocked and not face up
         if (!selected.GetComponent<Selectable>().faceUp) {
             if (!solitaire.Blocked(selected)) {
@@ -64,9 +71,10 @@ public class UserInput : MonoBehaviour {
             }
         }
         else {
-            // the card is face up, there is nothing else selected
+            // the card is in the tab or the found
             if (slot1 == this.gameObject) { 
                 slot1 = selected;
+                //Debug.Log("slot1.name = " + slot1.name);
                 Stack(slot1, CanBeStackedHere(slot1));
             }
         }
@@ -102,37 +110,47 @@ public class UserInput : MonoBehaviour {
     }
 
     GameObject CanBeStackedHere(GameObject selected) {
-        // This replaces 'Stackable' and determines the FIRST location that the selected card can be stacked.
-
+        
         GameObject newSpot = this.gameObject;  // the location that the card might be moved to if the conditions work out
         Selectable s1 = selected.GetComponent<Selectable>(); // selectable from the card to be moved
-        Selectable s2; // selectable from the potential place to move the card to
         Transform lastChild;
-          
-        for (int i = 0; i < solitaire.topPos.Length; i++) { // Iterate through top locations
-            newSpot = Utilities.FindYoungestChild(solitaire.topPos[i].transform).gameObject;
-            s2 = newSpot.GetComponent<Selectable>();
-            if ((s1.suit == s2.suit) || (s1.value == Constants.ACE_VALUE && s2.suit == null)) { // if the suits are the same OR the card is an Ace and the topPos is blank
-                if (s1.value == s2.value + 1) {
+
+        // check foundation first
+        stackCondition = solitaire.FoundationCondition;
+
+        if (s1.transform.childCount <= 0) { // make sure the card is not in the middle of a stack on the tableau before checking foundations
+            for (int i = 0; i < solitaire.topPos.Length; i++) { // Iterate through top locations
+
+                newSpot = Utilities.FindYoungestChild(solitaire.topPos[i].transform).gameObject;
+                //Debug.Log("in Check Foundation area of CanBeStackedHere, selected : " + selected.name + " and newSpot : " + newSpot.name);
+
+                if (stackCondition(selected, newSpot)) {
+
+                    stackCards = StackOnFoundation;
+
+                    stackCondition = null;
+
                     return newSpot;
                 }
             }
-        }
+        }           
+
         // we did not return yet so keep going
-        // look at every playable card in the bottom section?
+        // check Tableau cards
+        stackCondition = solitaire.TableauStackCondition;
+
         for (int i = 0; i < solitaire.bottomPos.Length; i++) {
+
             lastChild = Utilities.FindYoungestChild(solitaire.bottomPos[i].transform);
-            //Debug.Log("Looking at tableau lastChild = " + lastChild.gameObject.name.ToString());
             newSpot = lastChild.gameObject;
-            s2 = newSpot.GetComponent<Selectable>();
-            if ((s1.value == Constants.KING_VALUE) && (s2.value == 0)) {
+ 
+            if (stackCondition(selected, newSpot)) {
+                stackCards = StackOnStack;
+                stackCondition = null;
                 return newSpot;
-            } else if (s1.value == s2.value - 1) {
-                if ((Solitaire.red.Contains(s1.suit) && Solitaire.black.Contains(s2.suit)) || (Solitaire.red.Contains(s2.suit) && Solitaire.black.Contains(s1.suit))  ) {
-                    return newSpot;
-                }
             }
         }
+        stackCondition = null;
         return this.gameObject;
     }
 
@@ -146,12 +164,24 @@ public class UserInput : MonoBehaviour {
             return;
         }
         // stack a card onto the foundations. The check that it is the correct foundation and the youngest child is on the calling sub
+        //Debug.Log("In StackOnFoundation, s1 is : " + s1.name + " and s2 : " + s2.name);
 
         LeanTween.move(cardToStack, new Vector3(placeToStack.transform.position.x, placeToStack.transform.position.y, placeToStack.transform.position.z + zOffset), Constants.ANIMATE_MOVE_TO_FOUND);
         cardToStack.transform.parent = placeToStack.transform;
         s1.row = s2.row;
         s1.top = true;
         s1.inDeckPile = false;
+        if (s1.value == Constants.KING_VALUE) {
+            // check for win condition
+            if (solitaire.WinCondition()) {
+                StartCoroutine(winPopup(0.2f));
+            }
+        }
+    }
+
+    public IEnumerator winPopup(float secs) {
+        yield return new WaitForSeconds(secs);
+        gameOverUI.SetActive(true);
     }
 
     void StackOnStack(GameObject cardToStack, GameObject placeToStack) {
@@ -184,7 +214,7 @@ public class UserInput : MonoBehaviour {
     }
 
     void Stack(GameObject cardToStack, GameObject placeToStack) {
-
+        //Debug.Log("Stack method, cardToStack is " + cardToStack.name + " and placeToStack is " + placeToStack.name);
         if (placeToStack == this.gameObject) {
             return;
         }
@@ -196,14 +226,14 @@ public class UserInput : MonoBehaviour {
         int row = s1.row;  // save this row position so we can look at it after the card is moved
         bool movedFromBottomStacks = !s1.top && !s1.inDeckPile; // has to be checked before cards are moved
 
-        if (s2.top) {
-            // if the place to put the card is in the top section
-            if (cardToStack.transform.childCount > 0) {
-                return;
-            }
-            StackOnFoundation(cardToStack, placeToStack);
-        } else if (!s2.top && !s2.inDeckPile) {
-            StackOnStack(cardToStack, placeToStack);
+        if (s2.top && cardToStack.transform.childCount > 0) {
+            // if the place to put the card is in the top section and the cardToStack has childcards, then exit
+            return;
+
+        } else {
+
+            stackCards(cardToStack, placeToStack);
+            
         }
 
         // flip any card under the moved card that is still face down
@@ -215,6 +245,8 @@ public class UserInput : MonoBehaviour {
         }
 
         slot1 = this.gameObject;
+        stackCondition = null;
+        stackCards = null;
     }
 
     void AutoPlay() { // this does not do the thing yet.
@@ -255,132 +287,4 @@ public class UserInput : MonoBehaviour {
             }
         }
     }
-
-    //bool Stackable(GameObject selected) {
-    //    Selectable s1 = slot1.GetComponent<Selectable>(); // selectable from slot1
-    //    Selectable s2 = selected.GetComponent<Selectable>(); // selectable from 'selected' gameobj
-
-    //    if (!s2.inDeckPile) {
-    //        if (s2.top) { // moving a card to the foundation
-    //            if ((s1.suit == s2.suit) || (s1.value == 1 && s2.suit == null)) {
-    //                if (s1.value == s2.value + 1) {
-    //                    return true;
-    //                }
-    //            }
-    //            else {
-    //                return false;
-    //            }
-    //        }
-    //        else { // moving a card to a tableau stack
-    //            if ((s1.value == s2.value - 1) || ((s1.value == 13) && (s2.value == 0))) { // if the card values are one apart OR the 1st click is Kint and the 2nd is null space
-    //                if ((Solitaire.red.Contains(s1.suit) && Solitaire.black.Contains(s2.suit)) || (Solitaire.black.Contains(s1.suit) && Solitaire.red.Contains(s2.suit))) {
-    //                    //Debug.Log($"Stackable on tableau {s1.suit.ToString()}{s1.value.ToString()} on {s2.suit.ToString()}{s2.value.ToString()}");
-    //                    return true;
-    //                }
-    //            }
-    //            else {
-    //                //Debug.Log($"Not Stackable {s2.suit.ToString()}{s2.value.ToString()} on {s1.suit.ToString()}{s1.value.ToString()}");
-    //                return false;
-    //            }
-    //        }
-    //    }
-    //    return false;
-    //}
-    //void Stack(GameObject cardToStack, GameObject placeToStack) {  // the revised Stack with the old Stack code still in it.
-
-    //    if (placeToStack == this.gameObject) {
-    //        return;
-    //    }
-
-    //    Selectable s1 = cardToStack.GetComponent<Selectable>();
-    //    Selectable s2 = placeToStack.GetComponent<Selectable>();
-
-    //    //float yOffset = Constants.STACK_Y_OFFSET;
-    //    //float zOffset = Constants.Z_OFFSET;
-
-    //    //Transform parentCard;
-    //    Transform lastChild;
-
-    //    //if (s2.top || (!s2.top && s1.value == Constants.KING_VALUE)) {
-    //    //    yOffset = 0; // don't offset the card from the stack origination
-    //    //}
-    //    int row = s1.row;  // save this position so we can look at it after the card is moved
-    //    bool movedFromBottomStacks = !s1.top && !s1.inDeckPile;
-    //    Debug.Log("The bool is !s1.top = " + (!s1.top).ToString() + " and !s1.inDeckPile = " + (!s1.inDeckPile).ToString() + " therefore (!s1.top && !s1.inDeckPile = " + (!s1.top && !s1.inDeckPile).ToString());
-
-    //    if (s2.top) {
-    //        // if the place to put the card is in the top section
-    //        if (cardToStack.transform.childCount > 0) {
-    //            return;
-    //        }
-    //        StackOnFoundation(cardToStack, placeToStack);
-    //    }
-    //    else if (!s2.top && !s2.inDeckPile) {
-    //        StackOnStack(cardToStack, placeToStack);
-    //    }
-    //    // make sure all the cards that moved have the same row assigned
-    //    s1.row = s2.row;
-    //    foreach (Transform card in cardToStack.transform) {
-    //        card.GetComponent<Selectable>().row = s2.row;
-    //    }
-    //    // flip any card under the moved card that is still face down
-    //    if (movedFromBottomStacks) {
-    //        lastChild = solitaire.FindYoungestChild(solitaire.bottomPos[row].transform);
-    //        if (!lastChild.GetComponent<Selectable>().faceUp) {
-    //            FlipCard(lastChild.gameObject);
-    //        }
-    //    }
-
-    //    //slot1.transform.position = new Vector3(selected.transform.position.x, selected.transform.position.y + yOffset, selected.transform.position.z + zOffset);
-    //    //slot1.transform.parent = selected.transform; // this is so the children move with the parent. 
-
-    //    // check if the original parent of slot1 still has any children after moving slot1 then check 
-    //    // if the s1 card is not in the Top or in the Deck, check if the row it was in prior to moving has an unflipped card
-    //    //if (parentCard.childCount > 0) {
-    //    //    if (row > 0 && !s1.inDeckPile) {
-    //    //        childCard = solitaire.bottomPos[row].transform.GetChild(solitaire.bottomPos[row].transform.childCount - 1);
-    //    //        if (!childCard.GetComponent<Selectable>().faceUp) {
-    //    //            FlipCard(childCard.gameObject);
-    //    //        }
-    //    //    }
-    //    //}
-
-    //    // set the new sort order based on the parent card
-    //    //parentCard = selected.transform;
-
-    //    //while (parentCard.childCount > 0) { // this only for sortingOrder which we may not even be using about now...
-    //    //    //Debug.Log("Parent card start = " + parentCard.GetComponent<Selectable>().suit.ToString() + parentCard.GetComponent<Selectable>().value.ToString());
-    //    //    childCard = parentCard.GetChild(parentCard.childCount - 1); // get the most recently added child of the current parent
-    //    //    childCard.GetComponent<SpriteRenderer>().sortingOrder = parentCard.GetComponent<SpriteRenderer>().sortingOrder + 1;
-    //    //    parentCard = childCard;
-    //    //    //Debug.Log("Parent card end = " + parentCard.GetComponent<Selectable>().suit.ToString() + parentCard.GetComponent<Selectable>().value.ToString());
-    //    //}
-
-    //    //if (s1.top && s2.top && (s1.value == 1)) { // allows movement of cards between top spots
-    //    //    solitaire.topPos[s1.row].GetComponent<Selectable>().value = 0;
-    //    //    solitaire.topPos[s1.row].GetComponent<Selectable>().suit = null;
-    //    //}
-    //    //else if (s1.top) {                                // moving a card from the foundations back to the tableau
-    //    //    solitaire.topPos[s1.row].GetComponent<Selectable>().value = s1.value - 1;
-    //    //}
-    //    //else {                                            // removes the card string from the appropriate bottom list
-    //    //    solitaire.bottoms[s1.row].Remove(slot1.name);
-    //    //}
-
-    //    //s1.inDeckPile = false; 
-    //    ////Debug.Log($"Slot1 row is {s1.row} slot2 row is {s2.row}");
-    //    //s1.row = s2.row;
-
-    //    // I understand the problem now - when s1 is moved to the foundation, it is removed from the deck list and therefore is no longer a gameobject.
-    //    //if (s2.top) {
-    //    //    solitaire.topPos[s1.row].GetComponent<Selectable>().value = s1.value;
-    //    //    solitaire.topPos[s1.row].GetComponent<Selectable>().suit = s1.suit;
-    //    //    s1.top = true;
-    //    //}
-    //    //else {
-    //    //    s1.top = false;
-    //    //}
-    //    // after moving make slot1 (first card to move) work like null without using null (bc logic probs)
-    //    slot1 = this.gameObject;
-    //}
 }

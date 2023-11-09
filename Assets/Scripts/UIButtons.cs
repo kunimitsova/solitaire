@@ -10,6 +10,7 @@ public class UIButtons : MonoBehaviour {
 
     private void Start() {
         solitaire = FindObjectOfType<Solitaire>();
+        winScreenUI.SetActive(false);
     }
  
     public void ReplayGame() {
@@ -37,5 +38,8 @@ public class UIButtons : MonoBehaviour {
         // when exiting settings menu :
         PlayerPrefs.Save();
     }
-
+    
+    public void InstaWin() {
+        
+    }
 }
