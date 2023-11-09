@@ -203,7 +203,6 @@ public class Solitaire : MonoBehaviour {
                     newCard.transform.parent = deckButton.transform;
                     talon.Remove(newCard); // does this remove the slot it's in or just the object attached to that slot?
                                            //Debug.Log("The removed card was " + newCard.name.ToString() + " and the current talon[0] card is : " + talon[0].name.ToString());
-
                     talonZOffset += incrZOffset;
                     xOffset += incrXOffset;
 
@@ -214,6 +213,7 @@ public class Solitaire : MonoBehaviour {
             talon.RemoveAll(GameObject => GameObject == null); // this should remove all the empty slots, so now the topmost card is Talon[0]
 
             deckButton.GetComponent<TalonSpriteUpdate>().setTalonSprite(!(talon.Count > 0)); // there are no cards in the talon, then set empty sprite.
+
         } else {
             float zOffset = Constants.UNDEALT_CARD_Z_OFFSET;
             talon.RemoveAll(GameObject => GameObject == null);
@@ -277,7 +277,7 @@ public class Solitaire : MonoBehaviour {
     public bool Blocked(GameObject selected) {
         Selectable s2 = selected.GetComponent<Selectable>();
         if (s2.inDeckPile) {
-            if (s2.name == FindYoungestChild(deckButton.transform).name) {
+            if (s2.name == Utilities.FindYoungestChild(deckButton.transform).name) {
                 return false;
             }
             else {
@@ -292,17 +292,6 @@ public class Solitaire : MonoBehaviour {
                 return true;
             }
         }
-    }
-
-    public Transform FindYoungestChild(Transform parentObj) {
-        // gets the last-added child of an object and checks if that obj has children, if so it checks that child obj for the last added child, etc.
-        Transform t1 = parentObj;
-        Transform t2;
-        while (t1.childCount > 0) {
-            t2 = t1.GetChild(t1.childCount - 1);
-            t1 = t2;
-        }
-        return t1;
     }
 
     void DestroyCards() {

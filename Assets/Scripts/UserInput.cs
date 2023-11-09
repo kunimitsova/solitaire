@@ -110,7 +110,7 @@ public class UserInput : MonoBehaviour {
         Transform lastChild;
           
         for (int i = 0; i < solitaire.topPos.Length; i++) { // Iterate through top locations
-            newSpot = solitaire.FindYoungestChild(solitaire.topPos[i].transform).gameObject;
+            newSpot = Utilities.FindYoungestChild(solitaire.topPos[i].transform).gameObject;
             s2 = newSpot.GetComponent<Selectable>();
             if ((s1.suit == s2.suit) || (s1.value == Constants.ACE_VALUE && s2.suit == null)) { // if the suits are the same OR the card is an Ace and the topPos is blank
                 if (s1.value == s2.value + 1) {
@@ -121,7 +121,7 @@ public class UserInput : MonoBehaviour {
         // we did not return yet so keep going
         // look at every playable card in the bottom section?
         for (int i = 0; i < solitaire.bottomPos.Length; i++) {
-            lastChild = solitaire.FindYoungestChild(solitaire.bottomPos[i].transform);
+            lastChild = Utilities.FindYoungestChild(solitaire.bottomPos[i].transform);
             //Debug.Log("Looking at tableau lastChild = " + lastChild.gameObject.name.ToString());
             newSpot = lastChild.gameObject;
             s2 = newSpot.GetComponent<Selectable>();
@@ -176,7 +176,6 @@ public class UserInput : MonoBehaviour {
         while (parent.childCount > 0) {
             child = parent.GetChild(0);
             child.GetComponent<Selectable>().row = row;
-            Debug.Log("Card " + child.name + " row= " + child.GetComponent<Selectable>().row.ToString());
             parent = child;
         }
         s1.top = false;
@@ -209,7 +208,7 @@ public class UserInput : MonoBehaviour {
 
         // flip any card under the moved card that is still face down
         if (movedFromBottomStacks) {
-            lastChild = solitaire.FindYoungestChild(solitaire.bottomPos[row].transform);
+            lastChild = Utilities.FindYoungestChild(solitaire.bottomPos[row].transform);
             if (!lastChild.GetComponent<Selectable>().faceUp) {
                 FlipCard(lastChild.gameObject);
             }
@@ -220,7 +219,7 @@ public class UserInput : MonoBehaviour {
 
     void AutoPlay() { // this does not do the thing yet.
         GameObject oneSelected;
-        oneSelected = solitaire.FindYoungestChild(solitaire.deckButton.transform).gameObject;
+        oneSelected = Utilities.FindYoungestChild(solitaire.deckButton.transform).gameObject;
             for (int i = 0; i < solitaire.topPos.Length; i++) {
             // can't I just go through the positions using selected = solitaire.topPos[i].GetComponent<GameObject> and use Stackable?
             Selectable stack = solitaire.topPos[i].GetComponent<Selectable>();
