@@ -27,11 +27,11 @@ public class UserInput : MonoBehaviour {
     // we will have to edit this for touching...
     void GetMouseClick() {
         if (Input.GetMouseButtonDown(0)) {
+            gameOverUI.SetActive(false);
             Vector3 mousePos = Input.mousePosition;
             mousePos = Camera.main.ScreenToWorldPoint(mousePos);
             Debug.DrawRay(mousePos, transform.forward * 10, Color.red, 0.5f);
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-
             if (hit) {
                 // what has been hit? deck, card,empty slot...
                 if (hit.collider.CompareTag(Constants.DECK_TAG)) {
@@ -89,6 +89,7 @@ public class UserInput : MonoBehaviour {
                 Stack(slot1, selected);
             }
         }
+        Debug.Log("Clicked on Top");
     }
 
     void Bottom(GameObject selected) {
@@ -99,6 +100,7 @@ public class UserInput : MonoBehaviour {
                 Stack(slot1, selected);
             }
         }
+        Debug.Log("Clicked on Bottom");
     }
 
     void FlipCard(GameObject selected) {

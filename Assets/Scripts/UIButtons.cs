@@ -40,6 +40,6 @@ public class UIButtons : MonoBehaviour {
     }
     
     public void InstaWin() {
-        
+        winScreenUI.SetActive(true);
     }
 }
