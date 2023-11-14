@@ -15,6 +15,9 @@ public class UserInput : MonoBehaviour {
     delegate void StackCards(GameObject cardToStack, GameObject placeToStack);
     StackCards stackCards;
 
+    public delegate void MoveHandler(GameObject g1, GameObject g2);
+    public event MoveHandler Moved;
+
     void Start() {
         solitaire = FindObjectOfType<Solitaire>();
         slot1 = this.gameObject;  // this is the kindof inelegant way to determine if a card is currently selected.
@@ -49,6 +52,7 @@ public class UserInput : MonoBehaviour {
 
     void Deck() {
         //Debug.Log("Hit the deck");
+        Moved.Invoke(solitaire.deckButton, solitaire.deckButton); // I don't like it but without unraveling the whole thing this is the best setup rn.
         solitaire.DealFromTalon();
     }
 

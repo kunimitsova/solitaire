@@ -15,6 +15,12 @@ public class Constants {
     public const float ANIMATE_MOVE_TO_STACK = 0.2f;
     public const float ANIMATE_DEAL_FROM_TALON = 0.1f;
 
+    // card move values
+    public const string CARDMOVE_DECK = "D";
+    public const string CARDMOVE_FOUNDATION = "F";
+    public const string CARDMOVE_STACK = "S";
+    public const string CARDMOVE_FLIP = "flip";
+
     // camera values
     public const float CAMERA_DISTANCE = 10f;
 
