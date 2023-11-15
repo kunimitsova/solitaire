@@ -60,6 +60,19 @@ public class Solitaire : MonoBehaviour {
         PlayCards();
     }
 
+    private void OnEnable() {
+        UIButtons.GameRenewed += ResetTable;
+        UIButtons.GameStarted += PlayCards;
+        UIButtons.ReplayClicked += PrepDeck;
+        UserInput.DeckClicked += DealFromTalon;
+    }
+    private void OnDisable() {
+        UIButtons.GameRenewed -= ResetTable;
+        UIButtons.GameStarted -= PlayCards;
+        UIButtons.ReplayClicked -= PrepDeck;
+        UserInput.DeckClicked -= DealFromTalon;
+    }
+
     public void InitTableau() {
         foreach (GameObject tops in topPos) {
             tops.GetComponent<Selectable>().suit = null;

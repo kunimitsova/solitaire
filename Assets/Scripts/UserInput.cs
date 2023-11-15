@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class UserInput : MonoBehaviour {
 
@@ -9,6 +10,8 @@ public class UserInput : MonoBehaviour {
 
     private Solitaire solitaire;
 
+    public static event Action DeckClicked;
+
     delegate bool StackCondition(GameObject cardToMove, GameObject placeToMove); // let's practice using delegates....
     StackCondition stackCondition;
 
@@ -16,10 +19,14 @@ public class UserInput : MonoBehaviour {
     StackCards stackCards;
 
     public delegate void MoveHandler(GameObject g1, GameObject g2);
-    public event MoveHandler Moved;
+    public static event MoveHandler Moved;
+
+    // how to do when a card is flipped up from being uncovered.... 
+    public delegate void UncoveredCardFlip(GameObject g1);
+    public static event UncoveredCardFlip Flipped;
 
     void Start() {
-        solitaire = FindObjectOfType<Solitaire>();
+        solitaire = FindObjectOfType<Solitaire>(); // well I decided not to rewire the whole thing...
         slot1 = this.gameObject;  // this is the kindof inelegant way to determine if a card is currently selected.
     }
 
@@ -27,7 +34,6 @@ public class UserInput : MonoBehaviour {
         GetMouseClick();
     }
 
-    // we will have to edit this for touching...
     void GetMouseClick() {
         if (Input.GetMouseButtonDown(0)) {
             gameOverUI.SetActive(false);
@@ -53,7 +59,7 @@ public class UserInput : MonoBehaviour {
     void Deck() {
         //Debug.Log("Hit the deck");
         Moved.Invoke(solitaire.deckButton, solitaire.deckButton); // I don't like it but without unraveling the whole thing this is the best setup rn.
-        solitaire.DealFromTalon();
+        DeckClicked?.Invoke();
     }
 
     void Card(GameObject selected) {
@@ -172,6 +178,8 @@ public class UserInput : MonoBehaviour {
         // stack a card onto the foundations. The check that it is the correct foundation and the youngest child is on the calling sub
         //Debug.Log("In StackOnFoundation, s1 is : " + s1.name + " and s2 : " + s2.name);
 
+        Moved?.Invoke(cardToStack, placeToStack);
+
         LeanTween.move(cardToStack, new Vector3(placeToStack.transform.position.x, placeToStack.transform.position.y, placeToStack.transform.position.z + zOffset), Constants.ANIMATE_MOVE_TO_FOUND);
         cardToStack.transform.parent = placeToStack.transform;
         s1.row = s2.row;
@@ -202,6 +210,8 @@ public class UserInput : MonoBehaviour {
         }
         float yOffset = s2.value == 0 ? 0f : Constants.STACK_Y_OFFSET; // no y-Offset when moving to an empty stack
         float zOffset = Constants.Z_OFFSET;
+
+        Moved?.Invoke(cardToStack, placeToStack); // Why am I not doing this in Stack? IDK maybe because there's more checks here additionally? Are they even ever a thing?
 
         // stack a card or a stack onto an existing cardstack or empty space. The check that the receiving stack is correct is on the calling sub
         LeanTween.move(cardToStack, new Vector3(placeToStack.transform.position.x, placeToStack.transform.position.y + yOffset, placeToStack.transform.position.z + zOffset), Constants.ANIMATE_MOVE_TO_STACK);
@@ -245,8 +255,11 @@ public class UserInput : MonoBehaviour {
         // flip any card under the moved card that is still face down
         if (movedFromBottomStacks) {
             lastChild = Utilities.FindYoungestChild(solitaire.bottomPos[row].transform);
-            if (!lastChild.GetComponent<Selectable>().faceUp) {
-                FlipCard(lastChild.gameObject);
+            if (lastChild.CompareTag(Constants.CARD_TAG)) {
+                if (!lastChild.GetComponent<Selectable>().faceUp) {
+                    Flipped?.Invoke(lastChild.gameObject);
+                    FlipCard(lastChild.gameObject);
+                }
             }
         }
 

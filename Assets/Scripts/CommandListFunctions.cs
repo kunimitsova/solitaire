@@ -1,8 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-public class UndoFunctions : MonoBehaviour {
+
+public class CommandListFunctions: MonoBehaviour {
+    // these aren't really commands but it kinda works that way.
+
+    // what if I restructured my system, so it woudl say what I wrote down.
 
     public enum CardMovement {
         SS, // stack to stack (e.g. King to empty slot)
@@ -20,19 +24,52 @@ public class UndoFunctions : MonoBehaviour {
         public string CardName; // name of the card that acted
         public CardMovement cardMovedFrom; // code telling where the card moved from.
         public int? Row; // row that the card was in initially in. it will be null for cards from the deck, so DT, DF, and DD all have null Row.
+
+        public override string ToString() {
+            return "Card : " + CardName.ToString() + " move : " + cardMovedFrom.ToString() + " row : " + Row.ToString();
+        }
     }
 
     List<CardAction> _moveList = new List<CardAction>();
 
-    private void Start() {
-        
+    public void OnEnable() {
+        UIButtons.GameRenewed += ClearUndoList;
+        UIButtons.AutoplayClicked += ShowListInConsole;
+        UserInput.Moved += AddToMoveList;
+        UserInput.Flipped += AddCardFlipToMoveList;
+        UIButtons.UndoClicked += RemoveFromMoveList; // if we decide to add Redo , just remove this line
+    }
+    private void OnDisable() {
+        UIButtons.GameRenewed -= ClearUndoList;
+        UIButtons.AutoplayClicked -= ShowListInConsole;
+        UserInput.Moved -= AddToMoveList;
+        UserInput.Flipped -= AddCardFlipToMoveList;
+        UIButtons.UndoClicked -= RemoveFromMoveList;
+    }
+
+    private void ShowListInConsole() {
+
+        Debug.Log(string.Join<CardAction>("; ", _moveList));
+
+        //for (int i = 0; i < _moveList.Count; i++) {
+        //    Debug.Log(_moveList[i].ToString());
+        //}
+    }
+
+    public void ClearUndoList() {
+        _moveList.Clear(); 
+    }
+
+    public void RemoveFromMoveList() {
+        _moveList.RemoveAt(_moveList.Count); // remove the last added item
     }
 
     void AddToMoveList(GameObject g1, GameObject g2) {
         CardMovement move;
         string cardMoveString = "";
         string cardName;
-        int row;
+        int? row;
+        CardAction ca;
 
         if (ThisIsNotAValidMove(g1, g2)) {
             return;
@@ -41,6 +78,8 @@ public class UndoFunctions : MonoBehaviour {
         // if it's two deck buttons, then the move is DD so do that and exit
         else if (g1.CompareTag(Constants.DECK_TAG) && g2.CompareTag(Constants.DECK_TAG)) {
             move = CardMovement.DD;
+            cardName = null;
+            row = null;
         }
         // if it's not either of those two cases, get the cardMovement based on Selectables
         else {
@@ -48,11 +87,27 @@ public class UndoFunctions : MonoBehaviour {
             Selectable s2 = g2.GetComponent<Selectable>();
             cardMoveString += MovePart(s1);  // first prt of CardMovement
             cardMoveString += MovePart(s2); // second part of CardMovement
+            row = s1.row;
         }
 
-        cardName = g1.CompareTag(Constants.CARD_TAG) ? g1.name : "";
+        move = GetCardMoves(cardMoveString);
 
+        cardName = g1.CompareTag(Constants.CARD_TAG) ? g1.name : null;
 
+        ca.CardName = cardName;
+        ca.cardMovedFrom = move;
+        ca.Row = row;
+
+        _moveList.Add(ca);
+
+    }
+
+    void AddCardFlipToMoveList(GameObject g1) { // we only need the 1st object really....
+        CardAction ca;
+        ca.cardMovedFrom = CardMovement.flip;
+        ca.Row = g1.GetComponent<Selectable>().row;
+        ca.CardName = null;
+        _moveList.Add(ca);
     }
 
     CardMovement GetCardMoves(string move) {
@@ -76,8 +131,13 @@ public class UndoFunctions : MonoBehaviour {
 
     bool ThisIsNotAValidMove(GameObject g1, GameObject g2) {
         // make sure it's not trying to move things that are not cards
-        if (g1.CompareTag(Constants.TOP_TAG) || (g1.CompareTag(Constants.BOTTOM_TAG)) || (g1.CompareTag(Constants.DECK_TAG))) {
-            Debug.Log("TOP_TAG, BOTTOM_TAG, and DECK_TAG items cannot move to another place.");
+
+        if (g1.CompareTag(Constants.DECK_TAG) && (g2.CompareTag(Constants.DECK_TAG))) {
+            return false; // that means it is a DEAL FROM TALON move.
+        }
+
+        if (g1.CompareTag(Constants.TOP_TAG) || g1.CompareTag(Constants.BOTTOM_TAG) || g1.CompareTag(Constants.DECK_TAG)) {
+            Debug.Log("TOP_TAG, BOTTOM_TAG, DECK_TAG items cannot move to another place.");
             return true;
         }
         // make sure it's not trying to move INTO the deck pile
@@ -114,16 +174,5 @@ public class UndoFunctions : MonoBehaviour {
         }
         return move;
     }
-    
-    // subscribe to a thing that triggers when any card is actually moved?
-    // so, another delegate that invokes whenever the card moves. so, right before the actual move takes place OR when the user clicks on Deal from Talon.
-    // so what we want to subscribe to it is a method from here that invokes whenever a card is moved. Or, the event that a card is moved.
-    // so the delegate is in the solitaire class? or the userinput class? probably userinput.
-    // then in the start method in here, subscribe to it by adding the "add last move to the list" sub
-    // make sure to unsubscribe in a destroyed or disabled or whatever, idk
-
-
-    // one function for collecting the list, so set up the list in here.
-    // List should be string based. Maybe a type enum will help.
-
+   
 }

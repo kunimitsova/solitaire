@@ -1,31 +1,49 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class UIButtons : MonoBehaviour {
 
-    Solitaire solitaire;
+    //Solitaire solitaire;
     App_Initialize appInit;
     public GameObject winScreenUI;
 
+    public static event Action GameRenewed;
+
+    public static event Action ReplayClicked;
+
+    public static event Action GameStarted;
+
+    public static event Action AutoplayClicked;
+
+    public static event Action UndoClicked;
+
     private void Start() {
-        solitaire = FindObjectOfType<Solitaire>();
         winScreenUI.SetActive(false);
     }
  
     public void ReplayGame() {
         winScreenUI.SetActive(false);
-        solitaire.ResetTable();
-        // keep the same shuffled deck for this replay
-        solitaire.PlayCards();
+        GameRenewed?.Invoke();
+        // keep the same shuffled deck for this replay, do NOT ccall ReplayClicked!
+        GameStarted?.Invoke();
     }
 
     public void NewGame() {
         winScreenUI.SetActive(false);
-        solitaire.ResetTable();
+        GameRenewed?.Invoke();
         // get a new shuffle for this game
-        solitaire.PrepDeck();
-        solitaire.PlayCards();
+        ReplayClicked?.Invoke();
+        GameStarted?.Invoke();
+    }
+
+    public void Autoplay() { // right now this just has testing stuff related to the undo system
+        AutoplayClicked?.Invoke();
+    }
+
+    public void Undo() {
+        UndoClicked?.Invoke();
     }
 
     public void SeeSettings() {
