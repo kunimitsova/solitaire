@@ -6,20 +6,72 @@ using UnityEngine.TestTools;
 
 public class Setuptests
 {
-    // A Test behaves as an ordinary method
+    
+
     [Test]
-    public void SetuptestsSimplePasses()
-    {
-        // Use the Assert class to test conditions
+    public void CardActionToString_Test() {
+        CommandListFunctions.CardAction ca;
+        ca.CardName = "HA";
+        ca.cardMovedFrom = CommandListFunctions.CardMovement.DF;
+        ca.Row = null;
+
+        Assert.AreEqual("Card : HA move : DF row : null", ca.ToString());
     }
 
-    // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
-    // `yield return null;` to skip a frame.
-    [UnityTest]
-    public IEnumerator SetuptestsWithEnumeratorPasses()
+    [Test]
+    public void TestingEnumAndEtcStrings()
     {
-        // Use the Assert class to test conditions.
-        // Use yield to skip a frame.
-        yield return null;
+        List<CommandListFunctions.CardAction> caList = makeList();
+
+
+        //Assert.AreEqual("Card : CA move : DF row : null", CommandListFunctions.ShowListInConsole());
+        
+    }
+
+    List<CommandListFunctions.CardAction> makeList() {
+
+        List<CommandListFunctions.CardAction> calist = new List<CommandListFunctions.CardAction>();
+        CommandListFunctions.CardAction ca;
+        CommandListFunctions.CardAction flip;
+
+        ca.CardName = "H3";
+        ca.cardMovedFrom = CommandListFunctions.CardMovement.SS;
+        ca.Row = 5;
+        calist.Add(ca);
+
+        flip.CardName = null;
+        flip.cardMovedFrom = CommandListFunctions.CardMovement.flip;
+        flip.Row = ca.Row;
+        calist.Add(flip);
+
+        ca.cardMovedFrom = CommandListFunctions.CardMovement.DD;
+        ca.CardName = null;
+        ca.Row = null;
+        calist.Add(ca);
+
+        ca.cardMovedFrom = CommandListFunctions.CardMovement.SS;
+        ca.CardName = "D8";
+        ca.Row = 2;
+        calist.Add(ca);
+
+        flip.Row = ca.Row;
+        calist.Add(flip);
+
+        ca.cardMovedFrom = CommandListFunctions.CardMovement.DD;
+        ca.CardName = null;
+        ca.Row = null;
+        calist.Add(ca);
+
+        ca.cardMovedFrom = CommandListFunctions.CardMovement.DS;
+        ca.CardName = "SQ";
+        ca.Row = null;
+        calist.Add(ca);
+
+        ca.cardMovedFrom = CommandListFunctions.CardMovement.DF;
+        ca.CardName = "CA";
+        ca.Row = null;
+        calist.Add(ca);
+
+        return calist;
     }
 }

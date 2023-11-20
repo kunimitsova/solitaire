@@ -2,7 +2,27 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Constants {
+public static class Constants {
+    // AdMob values
+    public const string APP_ID_ANDROID = "ca-app-pub-6465163841396855~3281093860";
+    public const string ANDROID_AD_UNIT_ID_BANNER = "ca-app-pub-6465163841396855/6222117820";
+    public const string ANDROID_AD_UNIT_ID_REWARDEDAD = "";
+    public const string IOS_AD_UNIT_ID_REWARDEDAD = "";
+    public const string APP_ID_IOS = "";
+    public const string IOS_AD_UNIT_ID_BANNER = "";
+
+    // Top area left/right handed option values
+    public const float LHM_DECK_X = 0.17f; // this is for DECK ITEM not DECK BUTTON
+    public const float LHM_DECK_Y = 0.22f; // this is for DECK ITEM not DECK BUTTON
+    public const float LHM_TOP_X = 0.01f;
+    public const float LHM_TOP_Y = 0.08f; // this is for TOP SECTION not TOP SLOTS
+    public const float TOP_Z = 0f;    // Z-VALUE also does not change regardless 
+
+    public const float RHM_DECK_X = 0.01f;
+    public const float RHM_DECK_Y = 0.08f;
+    public const float RHM_TOP_X = 0.17f;
+    public const float RHM_TOP_Y = 0.22f;
+
     // card instantiate values
     public const float STACK_Y_OFFSET = -0.25f;
     public const float INIT_DECK_X_OFFSET = 0.686f;
@@ -32,6 +52,8 @@ public class Constants {
 
     // player prefs
     public const string LEFT_HAND_MODE = "LeftHandMode";
+    public const int LEFT_HAND_MODE_TRUE = 1;
+    public const int LEFT_HAND_MODE_FALSE = 0;
     public const string TALON_DEAL_AMOUNT = "TalonDealAmount";
 
     // card value constants
