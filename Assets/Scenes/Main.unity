@@ -2206,6 +2206,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameOverUI: {fileID: 1399222731}
+  solitaireGame: {fileID: 641518444}
   slot1: {fileID: 0}
 --- !u!114 &641518446
 MonoBehaviour:
@@ -2219,6 +2220,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c4495d3ebde46844a9f5f2299b2b2ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sceneMgr: {fileID: 2008893864}
   deckObject: {fileID: 194909624}
   topObject: {fileID: 2019685559}
   cardfaces:
@@ -3141,6 +3143,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab1f41b695ab6b44da15ec0dafa24868, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  testPanel: {fileID: 700506731}
 --- !u!1 &891092117
 GameObject:
   m_ObjectHideFlags: 0

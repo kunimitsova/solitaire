@@ -19,7 +19,7 @@ public class UIButtons : MonoBehaviour {
     public static event Action GameStarted;
 
     public delegate void TestItem(string text);
-    public static event TestItem TestButtonClicked;
+    public static TestItem TestButtonClicked;
 
     public static event Action SettingsClicked;
 

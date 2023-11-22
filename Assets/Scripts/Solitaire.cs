@@ -6,7 +6,7 @@ using System.Linq;
 
 public class Solitaire : MonoBehaviour {
     // attach to Solitaire empty GO
-
+    [SerializeField] GameObject sceneMgr; // so I can get the appInit object
     [SerializeField] GameObject deckObject; // for repositioning , probably should move this functionality to another class.
     [SerializeField] GameObject topObject;
 
@@ -46,7 +46,7 @@ public class Solitaire : MonoBehaviour {
     // Start is called before the first frame update
     void Start() {
         bottoms = new List<string>[] { bottom0, bottom1, bottom2, bottom3, bottom4, bottom5, bottom6 };
-        appInit = FindObjectOfType<App_Initialize>();
+        appInit = sceneMgr.GetComponent<App_Initialize>();
 
         localDealAmount = 3; // for testing purposes. Actua value should be :  appInit.TalonDealAmount; ******************************************************************
 

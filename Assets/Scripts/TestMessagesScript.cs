@@ -5,18 +5,19 @@ using UnityEngine.UI;
 public class TestMessagesScript : MonoBehaviour {
     // attach to test panel
 
-    [SerializeField] Button testMessageButton; 
+    [SerializeField] Text testMessageButtonText; 
     
     public void CloseTextMessages() {
-        this.gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 
     public void OpenTestMessages(string text) {
+        Debug.Log("OpenTestMessges referenced");
         TestButtonTextUpdate(text);
-        this.gameObject.SetActive(true);
+        gameObject.SetActive(true);
     }
 
     public void TestButtonTextUpdate(string text) {
-        testMessageButton.GetComponentInChildren<Text>().text = text;
+        //testMessageButton.GetComponentInChildren<Text>().text = text;
     }
 }

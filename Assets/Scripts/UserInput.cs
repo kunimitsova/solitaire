@@ -5,6 +5,7 @@ using System;
 public class UserInput : MonoBehaviour {
 
     public GameObject gameOverUI;
+    //public GameObject solitaireGame;
 
     public GameObject slot1;
 
@@ -26,7 +27,7 @@ public class UserInput : MonoBehaviour {
     public static event UncoveredCardFlip Flipped;
 
     void Start() {
-        solitaire = FindObjectOfType<Solitaire>(); // well I decided not to rewire the whole thing...
+        solitaire = gameObject.GetComponent<Solitaire>(); // well I decided not to rewire the whole thing...
         slot1 = this.gameObject;  // this is the kindof inelegant way to determine if a card is currently selected.
     }
 
