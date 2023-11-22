@@ -65,4 +65,8 @@ public static class Constants {
     public const string QUEEN_STRING = "Q";
     public const string JACK_STRING = "J";
     public const string ACE_STRING = "A";
+
+    // test message text
+    public const string TEST_AUTOPLAY = "Sorry, AutoPlay is not working yet. (touch to dismiss)";
+    public const string TEST_UNDO = "Sorry, Undo is not working yet. (touch to dismiss)";
 }

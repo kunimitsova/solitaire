@@ -6,8 +6,11 @@ using System;
 public class UIButtons : MonoBehaviour {
 
     //Solitaire solitaire;
-    App_Initialize appInit;
+    //App_Initialize appInit;
     public GameObject winScreenUI;
+    public GameObject settingsUI;
+    public GameObject testUI;
+    public GameObject inGameUI;
 
     public static event Action GameRenewed;
 
@@ -15,25 +18,27 @@ public class UIButtons : MonoBehaviour {
 
     public static event Action GameStarted;
 
-    public static event Action AutoplayClicked;
-
-    public static event Action UndoClicked;
+    public delegate void TestItem(string text);
+    public static event TestItem TestButtonClicked;
 
     public static event Action SettingsClicked;
 
     private void Start() {
         winScreenUI.SetActive(false);
+        settingsUI.SetActive(false);
+        testUI.SetActive(false);
+        inGameUI.SetActive(true);
     }
  
     public void ReplayGame() {
-        winScreenUI.SetActive(false);
+        SetOnlyInGameUIActive();
         GameRenewed?.Invoke();
         // keep the same shuffled deck for this replay, do NOT ccall ReplayClicked!
         GameStarted?.Invoke();
     }
 
     public void NewGame() {
-        winScreenUI.SetActive(false);
+        SetOnlyInGameUIActive();
         GameRenewed?.Invoke();
         // get a new shuffle for this game
         ReplayClicked?.Invoke();
@@ -41,25 +46,29 @@ public class UIButtons : MonoBehaviour {
     }
 
     public void Autoplay() { // right now this just has testing stuff related to the undo system
-        AutoplayClicked?.Invoke();
+        TestButtonClicked?.Invoke(Constants.TEST_AUTOPLAY);
     }
 
     public void Undo() {
-        UndoClicked?.Invoke();
+        TestButtonClicked?.Invoke(Constants.TEST_UNDO);
     }
 
     public void SeeSettings() {
-        winScreenUI.SetActive(false);
-        // show Settings menu
-
-        // how to set bool values :
-        // PlayerPrefs.SetInt("myBool", myBool ? 1 : 0); // 1 is true and 0 is false
-
-        // when exiting settings menu :
-        PlayerPrefs.Save();
+        SettingsClicked?.Invoke();
     }
     
     public void InstaWin() {
         winScreenUI.SetActive(true);
+    }
+
+    public void SetOnlyInGameUIActive() {
+        settingsUI.SetActive(false);
+        winScreenUI.SetActive(false);
+        testUI.SetActive(false);
+        inGameUI.SetActive(true);
+    }
+    
+    void CloseWin() {
+        winScreenUI.SetActive(false);
     }
 }

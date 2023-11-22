@@ -5,6 +5,10 @@ using System.Linq;
 
 
 public class Solitaire : MonoBehaviour {
+    // attach to Solitaire empty GO
+
+    [SerializeField] GameObject deckObject; // for repositioning , probably should move this functionality to another class.
+    [SerializeField] GameObject topObject;
 
     public static string[] suits = new string[] { "C", "D", "H", "S" };
     public static string[] values = new string[] { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
@@ -19,9 +23,6 @@ public class Solitaire : MonoBehaviour {
 
     public List<string>[] bottoms; // lol
     public List<string>[] tops;
-    //public List<string> tripsOnDisplay = new List<string>(); // the visible cards dealt from the talon
-    //public List<string> tripsUnderDisplay = new List<string>(); // the previous cards dealt from the talon that are not visible unless all tripsOnDisplay are used DO I NEED THIS??????????????????
-    //public List<List<string>> deckTrips = new List<List<string>>();
 
     private List<string> bottom0 = new List<string>();
     private List<string> bottom1 = new List<string>();
@@ -37,10 +38,6 @@ public class Solitaire : MonoBehaviour {
 
     List<GameObject> talon = new List<GameObject>(); // for the list of card items in the talon before they become discard pile
 
-    //public int deckLocation;
-    //private int triples;
-    //private int tripRemainder;
-    // keep track of z-offset on the talon discard pile so the cards will stack as they are dealt
     float talonZOffset = 0f;
     int localDealAmount;
 
@@ -53,11 +50,11 @@ public class Solitaire : MonoBehaviour {
 
         localDealAmount = 3; // for testing purposes. Actua value should be :  appInit.TalonDealAmount; ******************************************************************
 
-        InitTableau();
+        InitTableau(); // there should be an interface for this
 
         PrepDeck();
         // make the new deck list once
-        PlayCards();
+        PlayCards(); // there should be an interface for this
     }
 
     private void OnEnable() {
@@ -73,7 +70,19 @@ public class Solitaire : MonoBehaviour {
         UserInput.DeckClicked -= DealFromTalon;
     }
 
+    public void ArrangeTopForHand(bool leftHandedMode) { // idk if this is the best way to do this ....
+        float deckX = leftHandedMode ? Constants.LHM_DECK_X : Constants.RHM_DECK_X;
+        float deckY = leftHandedMode ? Constants.LHM_DECK_Y : Constants.RHM_DECK_Y;
+        float topX = leftHandedMode ? Constants.LHM_TOP_X : Constants.RHM_TOP_X;
+        float topY = leftHandedMode ? Constants.LHM_TOP_Y : Constants.RHM_TOP_Y;
+        float z = 0f;
+
+        deckObject.transform.position = new Vector3(deckX, deckY, z);
+        topObject.transform.position = new Vector3(topX, topY, z);
+    }
+
     public void InitTableau() {
+        ArrangeTopForHand(appInit.LeftHandedMode);
         foreach (GameObject tops in topPos) {
             tops.GetComponent<Selectable>().suit = null;
             tops.GetComponent<Selectable>().value = 0;

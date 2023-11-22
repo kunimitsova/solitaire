@@ -42,14 +42,14 @@ public class CommandListFunctions : MonoBehaviour {
         //UIButtons.AutoplayClicked += ShowListInConsole;
         UserInput.Moved += AddToMoveList;
         UserInput.Flipped += AddCardFlipToMoveList;
-        UIButtons.UndoClicked += RemoveFromMoveList; // if we decide to add Redo , just remove this line
+        //UIButtons.UndoClicked += RemoveFromMoveList; // if we decide to add Redo , just remove this line
     }
     private void OnDisable() {
         UIButtons.GameRenewed -= ClearUndoList;
         //UIButtons.AutoplayClicked -= ShowListInConsole;
         UserInput.Moved -= AddToMoveList;
         UserInput.Flipped -= AddCardFlipToMoveList;
-        UIButtons.UndoClicked -= RemoveFromMoveList;
+        //UIButtons.UndoClicked -= RemoveFromMoveList;
     }
 
     public string ShowListInConsole() { // remember the subs were commented out above

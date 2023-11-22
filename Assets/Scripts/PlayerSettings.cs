@@ -2,26 +2,36 @@ using UnityEngine;
 
 public class PlayerSettings : MonoBehaviour{
 
-    [SerializeField] GameObject SettingsUI;
+    [SerializeField] GameObject settingsUI;
+
+
+    public void Awake() {
+        Debug.Log("Settings is NOT active. (Awake)");
+        UIButtons.SettingsClicked += OpenPlayerSettings;
+    }
 
     public void OnEnable() {
+        Debug.Log("Settings is Enabled. (OnEnable)");
         UIButtons.SettingsClicked += OpenPlayerSettings;
     }
 
     public void OnDisable() {
+        Debug.Log("Settings is Disabled. (OnDisable"); 
         UIButtons.SettingsClicked -= OpenPlayerSettings;
         ClosePlayerSettings();
     }
 
     public void OpenPlayerSettings() {
-        SettingsUI.SetActive(true);
+        settingsUI.SetActive(true);
     }
 
     public void ClosePlayerSettings() {
-        SettingsUI.SetActive(false);
+        PlayerPrefs.Save();
+        settingsUI.SetActive(false);
     }
 
-    public void LHMtoggle(bool isLeftHandMode) {
+    public void LHMtoggleClicked(bool isLeftHandMode) {
+        Debug.Log("isLeftHandMode = " + isLeftHandMode.ToString());
         if (isLeftHandMode) {
             PlayerPrefs.SetInt(Constants.LEFT_HAND_MODE, Constants.LEFT_HAND_MODE_TRUE);
         }
@@ -30,5 +40,9 @@ public class PlayerSettings : MonoBehaviour{
         }
     }
 
-
+    public void DealSliderChanged(float value) {
+        int dealNumber = (int)value;
+        Debug.Log("The slider changed and the new value is : " + dealNumber.ToString());
+        PlayerPrefs.SetInt(Constants.TALON_DEAL_AMOUNT, dealNumber);
+    }
 }
