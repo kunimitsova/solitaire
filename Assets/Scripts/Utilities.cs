@@ -15,4 +15,19 @@ public class Utilities {
         return t1;
     }
 
+    public static float GetInitDeckXOffset(bool leftHandMode) {
+        float x = leftHandMode ? Constants.LHM_INIT_DECK_X_OFFSET : Constants.RHM_INIT_DECK_X_OFFSET;
+        return x;
+    }
+
+    public static bool GetLeftHandMode(int lhmInt) {
+        bool b = lhmInt == Constants.LEFT_HAND_MODE_TRUE;
+        return b;
+    }
+
+    public static float TestingCalculations(float initDeckXOffset, float localXDeckOffset, int localDealAmount, int i) {
+        float finalXpos = initDeckXOffset + ((localDealAmount - 1 - i) * localXDeckOffset);
+        return finalXpos;
+    }
+
 }

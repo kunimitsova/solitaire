@@ -1,8 +1,11 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using UnityEngine.EventSystems;
 
 public class UserInput : MonoBehaviour {
+    // attached to SolitaireGame
+    // contains Start, Update
 
     public GameObject gameOverUI;
     //public GameObject solitaireGame;
@@ -38,6 +41,9 @@ public class UserInput : MonoBehaviour {
     void GetMouseClick() {
         if (Input.GetMouseButtonDown(0)) {
             gameOverUI.SetActive(false);
+            if (EventSystem.current.IsPointerOverGameObject()) { // if the pointer is over a UI element
+                return; // don't do anything game related if UI is in front (for example Settings menu)
+            }
             Vector3 mousePos = Input.mousePosition;
             mousePos = Camera.main.ScreenToWorldPoint(mousePos);
             Debug.DrawRay(mousePos, transform.forward * 10, Color.red, 0.5f);

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class App_Initialize : MonoBehaviour {
+    // attached to _scenemanager. 
+    // contains Awake
 
     private int talonDealAmount; // the number of cards to deal from the talon each time
     public int TalonDealAmount { // good example of property
@@ -39,14 +41,20 @@ public class App_Initialize : MonoBehaviour {
         }
     }
 
-    void Start() {
-        talonDealAmount = PlayerPrefs.GetInt(Constants.TALON_DEAL_AMOUNT, 1);
-        leftHandedMode = PlayerPrefs.GetInt(Constants.LEFT_HAND_MODE, Constants.LEFT_HAND_MODE_TRUE ) == Constants.LEFT_HAND_MODE_TRUE; // if leftHandedMode = 1 then it's true otherwise false
-        initXDeckOffset = leftHandedMode ? Constants.INIT_DECK_X_OFFSET : -Constants.INIT_DECK_X_OFFSET; // offset towards the right in LHM, towards teh left in RHM
-        xDeckOffset = leftHandedMode ? Constants.DECK_X_OFFSET : -Constants.DECK_X_OFFSET; // move them toward the right in LHM, toward the left in RHM
+    void Awake() {
+        Debug.Log("AppInit Awake called");
+        SetInitValues();
+        PlayerSettings.SettingsUpdated += SetInitValues;
+    }
 
-        // do this while I figure out where to put this
-        //UIButtons uiButtons = FindObjectOfType<UIButtons>();
-        //uiButtons.SetOnlyInGameUIActive();
+    private void OnDisable() {
+        PlayerSettings.SettingsUpdated -= SetInitValues;
+    }
+
+    public void SetInitValues() {
+        talonDealAmount = PlayerPrefs.GetInt(Constants.TALON_DEAL_AMOUNT, 1);
+        leftHandedMode = Utilities.GetLeftHandMode(PlayerPrefs.GetInt(Constants.LEFT_HAND_MODE, Constants.LEFT_HAND_MODE_FALSE));
+        initXDeckOffset = Utilities.GetInitDeckXOffset(leftHandedMode);
+        xDeckOffset = Constants.DECK_X_OFFSET; 
     }
 }

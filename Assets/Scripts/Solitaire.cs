@@ -5,7 +5,9 @@ using System.Linq;
 
 
 public class Solitaire : MonoBehaviour {
-    // attach to Solitaire empty GO
+    // attach to SolitaireGame
+    // contains Start, OnEnable, OnDisable
+
     [SerializeField] GameObject sceneMgr; // so I can get the appInit object
     [SerializeField] GameObject deckObject; // for repositioning , probably should move this functionality to another class.
     [SerializeField] GameObject topObject;
@@ -40,15 +42,20 @@ public class Solitaire : MonoBehaviour {
 
     float talonZOffset = 0f;
     int localDealAmount;
-
-    private App_Initialize appInit;
+    float initDeckXOffset;
+    bool leftHandMode;
+    float localXDeckOffset;
 
     // Start is called before the first frame update
     void Start() {
+        App_Initialize appInit = sceneMgr.GetComponent<App_Initialize>();
         bottoms = new List<string>[] { bottom0, bottom1, bottom2, bottom3, bottom4, bottom5, bottom6 };
-        appInit = sceneMgr.GetComponent<App_Initialize>();
+        //appInit = sceneMgr.GetComponent<App_Initialize>();
 
-        localDealAmount = 3; // for testing purposes. Actua value should be :  appInit.TalonDealAmount; ******************************************************************
+        localDealAmount = appInit.TalonDealAmount;
+        initDeckXOffset = appInit.InitXDeckOffset;
+        leftHandMode = appInit.LeftHandedMode;
+        localXDeckOffset = appInit.XDeckOffset; // this used to be tied to lefthandmode but is not anymore
 
         InitTableau(); // there should be an interface for this
 
@@ -62,27 +69,38 @@ public class Solitaire : MonoBehaviour {
         UIButtons.GameStarted += PlayCards;
         UIButtons.ReplayClicked += PrepDeck;
         UserInput.DeckClicked += DealFromTalon;
+        PlayerSettings.SettingsUpdated += ResetForPlayerPrefChanges;
     }
     private void OnDisable() {
+
         UIButtons.GameRenewed -= ResetTable;
         UIButtons.GameStarted -= PlayCards;
         UIButtons.ReplayClicked -= PrepDeck;
         UserInput.DeckClicked -= DealFromTalon;
+        PlayerSettings.SettingsUpdated -= ResetForPlayerPrefChanges;
     }
 
-    public void ArrangeTopForHand(bool leftHandedMode) { // idk if this is the best way to do this ....
-        float deckX = leftHandedMode ? Constants.LHM_DECK_X : Constants.RHM_DECK_X;
-        float deckY = leftHandedMode ? Constants.LHM_DECK_Y : Constants.RHM_DECK_Y;
-        float topX = leftHandedMode ? Constants.LHM_TOP_X : Constants.RHM_TOP_X;
-        float topY = leftHandedMode ? Constants.LHM_TOP_Y : Constants.RHM_TOP_Y;
+    public void ArrangeTopForHand() { // idk if this is the best way to do this ....
+        float deckX = leftHandMode ? Constants.LHM_DECK_X : Constants.RHM_DECK_X;
+        float deckY = leftHandMode ? Constants.LHM_DECK_Y : Constants.RHM_DECK_Y;
+        float topX = leftHandMode ? Constants.LHM_TOP_X : Constants.RHM_TOP_X;
+        float topY = leftHandMode ? Constants.LHM_TOP_Y : Constants.RHM_TOP_Y;
         float z = 0f;
-
         deckObject.transform.position = new Vector3(deckX, deckY, z);
         topObject.transform.position = new Vector3(topX, topY, z);
     }
 
+    public void ResetForPlayerPrefChanges() {
+        leftHandMode = Utilities.GetLeftHandMode(PlayerPrefs.GetInt(Constants.LEFT_HAND_MODE));
+        initDeckXOffset = Utilities.GetInitDeckXOffset(leftHandMode);
+        ArrangeTopForHand();
+        RestackUndealtTalon(leftHandMode);
+        RestackDealtCards(leftHandMode);
+        localDealAmount = PlayerPrefs.GetInt(Constants.TALON_DEAL_AMOUNT);
+    }
+
     public void InitTableau() {
-        ArrangeTopForHand(appInit.LeftHandedMode);
+        ArrangeTopForHand();
         foreach (GameObject tops in topPos) {
             tops.GetComponent<Selectable>().suit = null;
             tops.GetComponent<Selectable>().value = 0;
@@ -201,15 +219,15 @@ public class Solitaire : MonoBehaviour {
     public void DealFromTalon() {
         int dealAtOnceAmount = localDealAmount;
         // pull cards from the top of the stack under deckbutton - they are in the List called talon; not worrying about timing right now, we will add animation or at least lerp later
-        float xOffset = appInit.InitXDeckOffset; // the x-offset o the first card is Init x-offset, this is how much offset for this 'round' of dealing
-        float incrXOffset = appInit.XDeckOffset; // xOffset will be different depending on LeftHandedMode
+        float xOffset = initDeckXOffset; // the x-offset o the first card is Init x-offset, this is how much offset for this 'round' of dealing
+        float incrXOffset = localXDeckOffset; // xOffset will be different depending on LeftHandedMode
         float incrZOffset = Constants.Z_OFFSET; // zOffset is coming towards the camera when the card is dealt and going away when they go back into the deck (UNDEALT_CARD_Z_OFFSET)
         GameObject newCard;
         Transform child;
 
         if (talon.Count > 0) {
 
-            SlideIntoStack(deckButton.transform, deckButton.transform.position.x + appInit.InitXDeckOffset); // align the cards into a stack under the newly dealt talon cards
+            SlideIntoStack(deckButton.transform, deckButton.transform.position.x + initDeckXOffset); // align the cards into a stack under the newly dealt talon cards
             
             talonZOffset += incrZOffset; // add some space between the previous card and the card we are about to move....
 
@@ -261,8 +279,39 @@ public class Solitaire : MonoBehaviour {
         s1.inDeckPile = true;
         card.GetComponent<UpdateSprite>().ShowCardFace();
     }
+
+    void RestackUndealtTalon(bool leftHandMode) {
+        // find all the cards that aren't a child of deckbutton or bottom or top
+        // so maybe find updatesprite and if it's a card and if it has parent = null?
+        UpdateSprite[] cards = FindObjectsOfType<UpdateSprite>();
+        float x = deckButton.transform.position.x;
+        foreach (UpdateSprite card in cards) {
+            if (card.CompareTag(Constants.CARD_TAG)) {
+                if (card.transform.parent == null) {
+                    card.transform.position = new Vector3(x, card.transform.position.y, card.transform.position.z);
+                }
+            }
+        }
+    }
+
+    void RestackDealtCards(bool leftHandMode) {
+        // get the cards that were already dealt and move them to the appropriate place of the deal
+        float xOffset = initDeckXOffset;
+        Transform child;
+        foreach (Transform card in deckButton.transform) {
+            if (card.CompareTag(Constants.CARD_TAG)) {
+                card.position = new Vector3(deckButton.transform.position.x + xOffset, card.position.y, card.position.z);
+            }
+        }
+        for (int i = 0; i < localDealAmount - 1; i++) { // display those last few cards out like if they had been dealt (I know this doesn't cover cases when a card from the deal has been used and then the settings are updated but I've decided it's fine)
+            child = deckButton.transform.GetChild(deckButton.transform.childCount - 1 - i); // e.g. if i = 0, get the last card. if i = 1, get the 2nd to last card.
+            xOffset = initDeckXOffset + ((localDealAmount - 1 - i) * localXDeckOffset);  
+            child.position = new Vector3(deckButton.transform.position.x + xOffset, child.position.y, child.position.z);
+        }
+    }
+
     /// <summary>
-    /// Common settings when reloading a talon with cards
+    /// Place one card back into the deck pile
     /// </summary>
     /// <param name="card">GameObject that is being put back into the deck</param>
     void BackIntoDeck(GameObject card) {

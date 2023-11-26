@@ -18,14 +18,15 @@ public static class Constants {
     public const float LHM_TOP_Y = 0.08f; // this is for TOP SECTION not TOP SLOTS
     public const float TOP_Z = 0f;    // Z-VALUE also does not change regardless 
 
-    public const float RHM_DECK_X = 0.01f;
-    public const float RHM_DECK_Y = 0.08f;
-    public const float RHM_TOP_X = 0.17f;
-    public const float RHM_TOP_Y = 0.22f;
+    public const float RHM_DECK_X = 3.989f;
+    public const float RHM_DECK_Y = 0.22f;
+    public const float RHM_TOP_X = -1.904f;
+    public const float RHM_TOP_Y = 0.08f;
 
     // card instantiate values
     public const float STACK_Y_OFFSET = -0.25f;
-    public const float INIT_DECK_X_OFFSET = 0.686f;
+    public const float LHM_INIT_DECK_X_OFFSET = 0.686f;
+    public const float RHM_INIT_DECK_X_OFFSET = -1.126f;
     public const float DECK_X_OFFSET = 0.22f;
     public const float Z_OFFSET = -0.02f;
     public const float UNDEALT_CARD_Z_OFFSET = 0.02f;  // for cards to stack behind deckButton

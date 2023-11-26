@@ -1,11 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
-//using TMPro;
+using TMPro;
 
 public class TestMessagesScript : MonoBehaviour {
     // attach to test panel
-
-    [SerializeField] Text testMessageButtonText; 
+    [SerializeField] TMP_Text testMessageButtonText;
     
     public void CloseTextMessages() {
         gameObject.SetActive(false);
@@ -18,6 +17,6 @@ public class TestMessagesScript : MonoBehaviour {
     }
 
     public void TestButtonTextUpdate(string text) {
-        //testMessageButton.GetComponentInChildren<Text>().text = text;
+        testMessageButtonText.text = text;
     }
 }
