@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-
+using TMPro;
 
 public class Solitaire : MonoBehaviour {
+    // this began from a tutorial and so it is very bloated and messy. I don't know if I want to put the effort in to update it.
+    // edit I will split this after I have fixed the UX problems (undo and autoplay)
     // attach to SolitaireGame
     // contains Start, OnEnable, OnDisable
 
@@ -20,11 +22,12 @@ public class Solitaire : MonoBehaviour {
     public Sprite[] cardfaces;
     public GameObject cardPrefab;
     public GameObject deckButton;
+    public GameObject talonCountText;
     public GameObject[] bottomPos;
     public GameObject[] topPos;
 
-    public List<string>[] bottoms; // lol
-    public List<string>[] tops;
+    public List<string>[] bottoms; 
+    //public List<string>[] tops;
 
     private List<string> bottom0 = new List<string>();
     private List<string> bottom1 = new List<string>();
@@ -129,9 +132,10 @@ public class Solitaire : MonoBehaviour {
 
         SolitaireSort();
         StartCoroutine(SolitaireDeal());
-        // at the end of SolitaireDeal, the deck should only contain the cards that would be set in the talon apot 
+        // at the end of SolitaireDeal, the deck should only contain the cards that would be set in the talon spot 
 
         SetUpTalon(deck);
+        talonCountText.GetComponent<TMP_Text>().text = talon.Count.ToString(); // update the label showing how many cards are left in the talon
     }
 
     public static List<string> GenerateDeck() {
@@ -194,6 +198,7 @@ public class Solitaire : MonoBehaviour {
         }
         foreach (string card in discardPile) {
             if (deck.Contains(card)) {
+                Debug.Log("The deck still contained a card that was in the bottoms[] list and that card is : " + card);
                 deck.Remove(card);
             }
         }
@@ -214,6 +219,7 @@ public class Solitaire : MonoBehaviour {
             //Debug.Log("Card z-value is " + newCard.transform.position.z.ToString());
             zOffset += Constants.UNDEALT_CARD_Z_OFFSET;
         }
+
     }
 
     public void DealFromTalon() {
@@ -267,6 +273,7 @@ public class Solitaire : MonoBehaviour {
             }
             talonZOffset = 0f; // the deal will reset at z = 0
         }
+        talonCountText.GetComponent<TMP_Text>().text = talon.Count.ToString();
     }
 
     /// <summary>

@@ -6,7 +6,7 @@ public static class Constants {
     // AdMob values
     public const string APP_ID_ANDROID = "ca-app-pub-6465163841396855~3281093860";
     public const string ANDROID_AD_UNIT_ID_BANNER = "ca-app-pub-6465163841396855/6222117820";
-    public const string ANDROID_AD_UNIT_ID_REWARDEDAD = "";
+    public const string ANDROID_AD_UNIT_ID_REWARDEDAD = "ca-app-pub-6465163841396855/4881766365";
     public const string IOS_AD_UNIT_ID_REWARDEDAD = "";
     public const string APP_ID_IOS = "";
     public const string IOS_AD_UNIT_ID_BANNER = "";

@@ -275,42 +275,12 @@ public class UserInput : MonoBehaviour {
         stackCards = null;
     }
 
-    void AutoPlay() { // this does not do the thing yet.
-        GameObject oneSelected;
-        oneSelected = Utilities.FindYoungestChild(solitaire.deckButton.transform).gameObject;
-            for (int i = 0; i < solitaire.topPos.Length; i++) {
-            // can't I just go through the positions using selected = solitaire.topPos[i].GetComponent<GameObject> and use Stackable?
-            Selectable stack = solitaire.topPos[i].GetComponent<Selectable>();
-            if (oneSelected.GetComponent<Selectable>().value == Constants.ACE_VALUE) { // card is an Ace
-                if (solitaire.topPos[i].GetComponent<Selectable>().value == 0) {
-                    slot1 = oneSelected;
-                    Stack(slot1, stack.gameObject);
-                    break;
-                }
-            } else {
-                if ((solitaire.topPos[i].GetComponent<Selectable>().suit == slot1.GetComponent<Selectable>().suit) && 
-                    (solitaire.topPos[i].GetComponent<Selectable>().value == slot1.GetComponent<Selectable>().value - 1)) {
-                    if (oneSelected.transform.childCount == 0) {  // if it is the last card in the cardstack
-                        slot1 = oneSelected;
-                        string lastCardName = stack.suit + stack.value.ToString();
-                        if (stack.value == Constants.ACE_VALUE) {
-                            lastCardName = stack.suit + Constants.ACE_STRING;
-                        }
-                        if (stack.value == Constants.JACK_VALUE) {
-                            lastCardName = stack.suit + Constants.JACK_STRING;
-                        }
-                        if (stack.value == Constants.QUEEN_VALUE) {
-                            lastCardName = stack.suit + Constants.QUEEN_STRING;
-                        }
-                        if (stack.value == Constants.KING_VALUE) {
-                            lastCardName = stack.suit + Constants.KING_STRING;
-                        }
-                        GameObject lastCard = GameObject.Find(lastCardName);
-                        Stack(slot1, lastCard);
-                        break;
-                    }
-                }
-            }
-        }
+    void AutoPlay() { 
+        // find the first valid move:
+        // find available cards start with TABLEAU cards
+        // available cards are those that are FindYoungestChild of the TABLEAU objects
+        // starting from botttomPos[0] , see if the FindYoungestChild can go on any of the others which we already have a function for
+        // so it's juts the solitaire things but start with the cards from bottomPos[0].FindYoungestChild as the "Selected" item (first thing selected)
+        // if we can't find a Tableau object that works, find the Deck child object that works, if not then do DealFromTableau
     }
 }

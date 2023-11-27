@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class CommandListFunctions : MonoBehaviour {
     // these aren't really commands but it kinda works that way.
-
-    // what if I restructured my system, so it woudl say what I wrote down.
+    
+    // restructuring to not need Flip
 
     public enum CardMovement {
         SS, // stack to stack (e.g. King to empty slot)
@@ -34,6 +34,8 @@ public class CommandListFunctions : MonoBehaviour {
         }
     }
 
+    public static CardAction lastMove;
+
     List<CardAction> _moveList = new List<CardAction>(); // list of all the moves
     List<CardAction> _undo = new List<CardAction>();  // list that will hold card actions that need to be undone
 
@@ -42,21 +44,25 @@ public class CommandListFunctions : MonoBehaviour {
         //UIButtons.AutoplayClicked += ShowListInConsole;
         UserInput.Moved += AddToMoveList;
         UserInput.Flipped += AddCardFlipToMoveList;
-        //UIButtons.UndoClicked += RemoveFromMoveList; // if we decide to add Redo , just remove this line
+        UIButtons.UndoClicked += RemoveFromMoveList; // if we decide to add Redo , just remove this line
     }
     private void OnDisable() {
         UIButtons.GameRenewed -= ClearUndoList;
         //UIButtons.AutoplayClicked -= ShowListInConsole;
         UserInput.Moved -= AddToMoveList;
         UserInput.Flipped -= AddCardFlipToMoveList;
-        //UIButtons.UndoClicked -= RemoveFromMoveList;
+        UIButtons.UndoClicked -= RemoveFromMoveList;
     }
 
-    public string ShowListInConsole() { // remember the subs were commented out above
-        //string myString = string.Join<CardAction>("\nl", _moveList);
-        //Debug.Log(myString);
+    public void ShowListInConsole() { // remember the subs were commented out above
+        string myString = string.Join<CardAction>("\nl", _moveList);
+        Debug.Log(myString);
 
-        return _moveList[_moveList.Count - 1].ToString();
+        //return _moveList[_moveList.Count - 1].ToString();
+    }
+
+    CardAction GetLastCommand() {
+        return _moveList[_moveList.Count - 1]; // get the last added item in the list
     }
 
     public void ClearUndoList() {
@@ -64,6 +70,7 @@ public class CommandListFunctions : MonoBehaviour {
     }
 
     public void RemoveFromMoveList() {
+        lastMove = GetLastCommand();
         int removeItems = _moveList[_moveList.Count - 1].cardMovedFrom == CardMovement.flip ? 2 : 1; // number of items to remove when Undo is clicked
         for (int i = 0; i < removeItems; i++) {
             _undo.Add(_moveList[_moveList.Count - 1]); // add the last thing to the list of things that has to be done.

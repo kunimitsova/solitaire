@@ -23,6 +23,10 @@ public class UIButtons : MonoBehaviour {
 
     public static event Action SettingsClicked;
 
+    public static event Action UndoClicked;
+
+    public static event Action AutoplayClicked;
+
     private void Start() {
         winScreenUI.SetActive(false);
         settingsUI.SetActive(false);
