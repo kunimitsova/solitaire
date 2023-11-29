@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using TMPro;
 
 
 public class Solitaire : MonoBehaviour {
@@ -22,6 +23,7 @@ public class Solitaire : MonoBehaviour {
     public GameObject deckButton;
     public GameObject[] bottomPos;
     public GameObject[] topPos;
+    public TMP_Text talonAmountText;
 
     public List<string>[] bottoms; // lol
     public List<string>[] tops;
@@ -214,6 +216,7 @@ public class Solitaire : MonoBehaviour {
             //Debug.Log("Card z-value is " + newCard.transform.position.z.ToString());
             zOffset += Constants.UNDEALT_CARD_Z_OFFSET;
         }
+        talonAmountText.text = talon.Count.ToString();
     }
 
     public void DealFromTalon() {
@@ -267,6 +270,7 @@ public class Solitaire : MonoBehaviour {
             }
             talonZOffset = 0f; // the deal will reset at z = 0
         }
+        talonAmountText.text = talon.Count.ToString();
     }
 
     /// <summary>
