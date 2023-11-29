@@ -7,11 +7,12 @@ public class SolitairePlay : MonoBehaviour {
 
     void PlayOrder() {
         // Initialize values from PlayerPrefs
-        // Create new deck OR use last deck
+        // Create new deck OR use last deck (shuffle is in this step)
         // Make the tableau TOP and BOTTOM gameobjects correct
         // Sort the string deck for solitaire
-        // instantiate the tableau
-        // instantiate the talon
+        // instantiate the tableau cards
+        // instantiate the talon cards
+        // things that happen when user clicks stuff
     }
     // attach to SolitaireGame
     // contains Start, OnEnable, OnDisable
@@ -19,9 +20,6 @@ public class SolitairePlay : MonoBehaviour {
     public static event Action GetNewDeck;
 
     public static event Action GetSavedDeck;
-
-    public delegate void PrepareCards(List<string> deck);
-    public static event PrepareCards prepareCardObjects;
 
     [SerializeField] GameObject sceneMgr; // so I can get the appInit object
     [SerializeField] GameObject deckObject; // for repositioning , probably should move this functionality to another class.
@@ -36,21 +34,6 @@ public class SolitairePlay : MonoBehaviour {
     public GameObject talonCountText;
     public GameObject[] bottomPos;
     public GameObject[] topPos;
-
-    //public List<string>[] bottoms; 
-    //public List<string>[] tops;
-
-    //private List<string> bottom0 = new List<string>();
-    //private List<string> bottom1 = new List<string>();
-    //private List<string> bottom2 = new List<string>();
-    //private List<string> bottom3 = new List<string>();
-    //private List<string> bottom4 = new List<string>();
-    //private List<string> bottom5 = new List<string>();
-    //private List<string> bottom6 = new List<string>();
-
-    //public List<string> deck;
-    //public List<string> SavedDeck; // for replay THIS game
-    //public List<string> discardPile = new List<string>();
 
     List<GameObject> talon = new List<GameObject>(); // for the list of card items in the talon before they become discard pile
 
@@ -70,16 +53,17 @@ public class SolitairePlay : MonoBehaviour {
         leftHandMode = appInit.LeftHandedMode;
         localXDeckOffset = appInit.XDeckOffset; // this used to be tied to lefthandmode but is not anymore
 
-        InitTableau(); // there should be an interface for this
+        InitTableau();
 
-        PrepDeck();
+        GetNewDeck?.Invoke();
+
         // make the new deck list once
-        PlayCards(); // there should be an interface for this
+        PlayCards(); 
     }
 
     private void OnEnable() {
-        UIButtons.GameRenewed += GetNewDeck;
-        UIButtons.GameRenewed += ResetTable;
+        UIButtons.NewGameClicked += GetNewDeck;
+        UIButtons.NewGameClicked += ResetTable;
 
         UIButtons.GameStarted += PlayCards;
 
@@ -91,11 +75,16 @@ public class SolitairePlay : MonoBehaviour {
         PlayerSettings.SettingsUpdated += ResetForPlayerPrefChanges;
     }
     private void OnDisable() {
+        UIButtons.NewGameClicked -= GetNewDeck;
+        UIButtons.NewGameClicked -= ResetTable;
 
-        UIButtons.GameRenewed -= ResetTable;
         UIButtons.GameStarted -= PlayCards;
-        UIButtons.ReplayClicked -= PrepDeck;
+
+        UIButtons.ReplayClicked -= GetSavedDeck;
+        UIButtons.ReplayClicked -= ResetTable;
+
         UserInput.DeckClicked -= DealFromTalon;
+
         PlayerSettings.SettingsUpdated -= ResetForPlayerPrefChanges;
     }
 
@@ -136,8 +125,7 @@ public class SolitairePlay : MonoBehaviour {
     //}
     public void PlayCards() {
 
-        GetDeck?.Invoke();
-
+        
         StartCoroutine(SolitaireDeal());
         // at the end of SolitaireDeal, the deck should only contain the cards that would be set in the talon spot 
 
@@ -145,38 +133,38 @@ public class SolitairePlay : MonoBehaviour {
         talonCountText.GetComponent<TMP_Text>().text = talon.Count.ToString(); // update the label showing how many cards are left in the talon
     }
 
-    IEnumerator SolitaireDeal(List<string>[] bottoms) {
+    //IEnumerator SolitaireDeal(List<string>[] bottoms) {
 
-        for (int i = 0; i < 7; i++) {
+    //    for (int i = 0; i < 7; i++) {
 
-            float yOffset = 0f;
-            float zOffset = Constants.Z_OFFSET;
+    //        float yOffset = 0f;
+    //        float zOffset = Constants.Z_OFFSET;
 
-            foreach (string card in bottoms[i]) {
-                yield return new WaitForSeconds(0.01f);
-                GameObject newCard = Instantiate(cardPrefab, new Vector3(bottomPos[i].transform.position.x, bottomPos[i].transform.position.y + yOffset, bottomPos[i].transform.position.z + zOffset), Quaternion.identity, bottomPos[i].transform);
-                newCard.name = card;
-                newCard.GetComponent<Selectable>().row = i;
+    //        foreach (string card in bottoms[i]) {
+    //            yield return new WaitForSeconds(0.01f);
+    //            GameObject newCard = Instantiate(cardPrefab, new Vector3(bottomPos[i].transform.position.x, bottomPos[i].transform.position.y + yOffset, bottomPos[i].transform.position.z + zOffset), Quaternion.identity, bottomPos[i].transform);
+    //            newCard.name = card;
+    //            newCard.GetComponent<Selectable>().row = i;
 
-                if (card == bottoms[i][bottoms[i].Count - 1]) { // ex. bottoms[0][0] faceUp = true, bottoms[4][1] faceUp = false
-                    newCard.GetComponent<Selectable>().faceUp = true;
-                    newCard.GetComponent<UpdateSprite>().ShowCardFace();
-                }
+    //            if (card == bottoms[i][bottoms[i].Count - 1]) { // ex. bottoms[0][0] faceUp = true, bottoms[4][1] faceUp = false
+    //                newCard.GetComponent<Selectable>().faceUp = true;
+    //                newCard.GetComponent<UpdateSprite>().ShowCardFace();
+    //            }
 
-                yOffset += Constants.STACK_Y_OFFSET;
-                zOffset += Constants.Z_OFFSET;
-                discardPile.Add(card);
-            }
+    //            yOffset += Constants.STACK_Y_OFFSET;
+    //            zOffset += Constants.Z_OFFSET;
+    //            discardPile.Add(card);
+    //        }
 
-        }
-        foreach (string card in discardPile) {
-            if (deck.Contains(card)) {
-                Debug.Log("The deck still contained a card that was in the bottoms[] list and that card is : " + card);
-                deck.Remove(card);
-            }
-        }
-        discardPile.Clear();
-    }
+    //    }
+    //    foreach (string card in discardPile) {
+    //        if (deck.Contains(card)) {
+    //            Debug.Log("The deck still contained a card that was in the bottoms[] list and that card is : " + card);
+    //            deck.Remove(card);
+    //        }
+    //    }
+    //    discardPile.Clear();
+    //}
 
     void SetUpTalon(List<string> talonDeck) {
         // instantiate cards behind the deckButton so that deckButton still calls them 

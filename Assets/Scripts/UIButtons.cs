@@ -12,7 +12,7 @@ public class UIButtons : MonoBehaviour {
     public GameObject testUI;
     public GameObject inGameUI;
 
-    public static event Action GameRenewed;
+    public static event Action NewGameClicked;
 
     public static event Action ReplayClicked;
 
@@ -36,14 +36,14 @@ public class UIButtons : MonoBehaviour {
  
     public void ReplayGame() {
         SetOnlyInGameUIActive();
-        GameRenewed?.Invoke();
-        // keep the same shuffled deck for this replay, do NOT ccall ReplayClicked!
+        ReplayClicked?.Invoke();
+        // keep the same shuffled deck for this replay, do NOT ccall NewGameClicked!
         GameStarted?.Invoke();
     }
 
     public void NewGame() {
         SetOnlyInGameUIActive();
-        GameRenewed?.Invoke();
+        NewGameClicked?.Invoke();
         // get a new shuffle for this game
         ReplayClicked?.Invoke();
         GameStarted?.Invoke();

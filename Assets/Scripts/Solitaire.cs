@@ -6,26 +6,26 @@ using System.Linq;
 using TMPro;
 
 public class SolitaireInstantiate : MonoBehaviour {
-    //    // this began from a tutorial and so it is very bloated and messy. I don't know if I want to put the effort in to update it.
-    //    // At this point it should JUST be instantiating cards. Do not delete reference to Sprite[] because that's where we put the cards in the right labels!
+    // this began from a tutorial and so it is very bloated and messy. I don't know if I want to put the effort in to update it.
+    // At this point it should JUST be instantiating cards. Do not delete reference to Sprite[] because that's where we put the cards in the right labels!
 
-    //    // attach to SolitaireGame
-    //    // contains Start, OnEnable, OnDisable
+    // attach to SolitaireGame
+    // contains Start, OnEnable, OnDisable
 
 
-    //    [SerializeField] GameObject sceneMgr; // so I can get the appInit object
-    //    [SerializeField] GameObject deckObject; // for repositioning , probably should move this functionality to another class.
-    //    [SerializeField] GameObject topObject;
+    [SerializeField] GameObject sceneMgr; // so I can get the appInit object
+    [SerializeField] GameObject deckObject; // for repositioning , probably should move this functionality to another class.
+    [SerializeField] GameObject topObject;
 
-    //    public static List<string> red = new List<string> { "D", "H" };
-    //    public static List<string> black = new List<string> { "C", "S" };
+    //public static List<string> red = new List<string> { "D", "H" };
+    //public static List<string> black = new List<string> { "C", "S" };
 
     public Sprite[] cardfaces;
     public GameObject cardPrefab;
     public GameObject deckButton;
-    public GameObject talonCountText;
+    //public GameObject talonCountText;
     public GameObject[] bottomPos;
-    public GameObject[] topPos;
+    //public GameObject[] topPos;
 
     //    List<GameObject> talon = new List<GameObject>(); // for the list of card items in the talon before they become discard pile
 
@@ -52,27 +52,17 @@ public class SolitaireInstantiate : MonoBehaviour {
     //        PlayCards(); // there should be an interface for this
     //    }
 
-    //    private void OnEnable() {
-    //        UIButtons.GameRenewed += GetNewDeck;
-    //        UIButtons.GameRenewed += ResetTable;
+    private void OnEnable() {
 
-    //        UIButtons.GameStarted += PlayCards;
 
-    //        UIButtons.ReplayClicked += GetSavedDeck;
-    //        UIButtons.ReplayClicked += ResetTable;
+        //UserInput.DeckClicked += DealFromTalon;
 
-    //        UserInput.DeckClicked += DealFromTalon;
-
-    //        PlayerSettings.SettingsUpdated += ResetForPlayerPrefChanges;
-    //    }
-    //    private void OnDisable() {
-
-    //        UIButtons.GameRenewed -= ResetTable;
-    //        UIButtons.GameStarted -= PlayCards;
-    //        UIButtons.ReplayClicked -= PrepDeck;
-    //        UserInput.DeckClicked -= DealFromTalon;
-    //        PlayerSettings.SettingsUpdated -= ResetForPlayerPrefChanges;
-    //    }
+        //PlayerSettings.SettingsUpdated += ResetForPlayerPrefChanges;
+    }
+    private void OnDisable() {
+        UserInput.DeckClicked -= DealFromTalon;
+        PlayerSettings.SettingsUpdated -= ResetForPlayerPrefChanges;
+    }
 
     //    public void ArrangeTopForHand() { // idk if this is the best way to do this ....
     //        float deckX = leftHandMode ? Constants.LHM_DECK_X : Constants.RHM_DECK_X;
@@ -109,49 +99,49 @@ public class SolitaireInstantiate : MonoBehaviour {
     //    //    SavedDeck = GenerateDeck();
     //    //    Shuffle(SavedDeck);
     //    //}
-    //    public void PlayCards() {
+    public void PlayCards(List<string>[] bottoms) {
 
-    //        GetDeck?.Invoke();
+        GetDeck?.Invoke();
 
-    //        StartCoroutine(SolitaireDeal());
-    //        // at the end of SolitaireDeal, the deck should only contain the cards that would be set in the talon spot 
+        StartCoroutine(SolitaireDeal());
+        // at the end of SolitaireDeal, the deck should only contain the cards that would be set in the talon spot 
 
-    //        SetUpTalon(deck);
-    //        talonCountText.GetComponent<TMP_Text>().text = talon.Count.ToString(); // update the label showing how many cards are left in the talon
-    //    }
+        SetUpTalon(deck);
+        talonCountText.GetComponent<TMP_Text>().text = talon.Count.ToString(); // update the label showing how many cards are left in the talon
+    }
 
-    //    IEnumerator SolitaireDeal(List<string>[] bottoms) {
+    IEnumerator SolitaireDeal(List<string>[] bottoms) {
 
-    //        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 7; i++) {
 
-    //            float yOffset = 0f;
-    //            float zOffset = Constants.Z_OFFSET;
+            float yOffset = 0f;
+            float zOffset = Constants.Z_OFFSET;
 
-    //            foreach (string card in bottoms[i]) {
-    //                yield return new WaitForSeconds(0.01f);
-    //                GameObject newCard = Instantiate(cardPrefab, new Vector3(bottomPos[i].transform.position.x, bottomPos[i].transform.position.y + yOffset, bottomPos[i].transform.position.z + zOffset), Quaternion.identity, bottomPos[i].transform);    
-    //                newCard.name = card;
-    //                newCard.GetComponent<Selectable>().row = i;
+            foreach (string card in bottoms[i]) {
+                yield return new WaitForSeconds(0.01f);
+                GameObject newCard = Instantiate(cardPrefab, new Vector3(bottomPos[i].transform.position.x, bottomPos[i].transform.position.y + yOffset, bottomPos[i].transform.position.z + zOffset), Quaternion.identity, bottomPos[i].transform);
+                newCard.name = card;
+                newCard.GetComponent<Selectable>().row = i;
 
-    //                if (card == bottoms[i][bottoms[i].Count - 1]) { // ex. bottoms[0][0] faceUp = true, bottoms[4][1] faceUp = false
-    //                    newCard.GetComponent<Selectable>().faceUp = true;
-    //                    newCard.GetComponent<UpdateSprite>().ShowCardFace();
-    //                }
+                if (card == bottoms[i][bottoms[i].Count - 1]) { // ex. bottoms[0][0] faceUp = true, bottoms[4][1] faceUp = false
+                    newCard.GetComponent<Selectable>().faceUp = true;
+                    newCard.GetComponent<UpdateSprite>().ShowCardFace();
+                }
 
-    //                yOffset += Constants.STACK_Y_OFFSET;
-    //                zOffset += Constants.Z_OFFSET;
-    //                discardPile.Add(card);
-    //            }
+                yOffset += Constants.STACK_Y_OFFSET;
+                zOffset += Constants.Z_OFFSET;
+                //discardPile.Add(card);
+            }
 
-    //        }
-    //        foreach (string card in discardPile) {
-    //            if (deck.Contains(card)) {
-    //                Debug.Log("The deck still contained a card that was in the bottoms[] list and that card is : " + card);
-    //                deck.Remove(card);
-    //            }
-    //        }
-    //        discardPile.Clear();
-    //    }
+        }
+        //foreach (string card in discardPile) {
+        //    if (deck.Contains(card)) {
+        //        Debug.Log("The deck still contained a card that was in the bottoms[] list and that card is : " + card);
+        //        deck.Remove(card);
+        //    }
+        //}
+        //discardPile.Clear();
+    }
 
     //    void SetUpTalon(List<string> talonDeck) {
     //        // instantiate cards behind the deckButton so that deckButton still calls them 

@@ -28,16 +28,18 @@ public class SolitaireStringDeckSetup : MonoBehaviour {
 
     void Start() {
         bottoms = new List<string>[] { bottom0, bottom1, bottom2, bottom3, bottom4, bottom5, bottom6 };
-        Solitaire.GetNewDeck += PrepDeck;
-        Solitaire.GetNewDeck += InitialDeal;
+        SolitairePlay.GetNewDeck += PrepDeck;
+        SolitairePlay.GetNewDeck += InitialDeal;
 
-        Solitaire.GetSavedDeck += InitialDeal;
+        SolitairePlay.GetSavedDeck += InitialDeal;
+
+        
     }
 
     private void OnDisable() {
-        Solitaire.GetNewDeck -= PrepDeck;
-        Solitaire.GetNewDeck -= InitialDeal;
-        Solitaire.GetSavedDeck -= InitialDeal;
+        SolitairePlay.GetNewDeck -= PrepDeck;
+        SolitairePlay.GetNewDeck -= InitialDeal;
+        SolitairePlay.GetSavedDeck -= InitialDeal;
     }
 
     /// <summary>
