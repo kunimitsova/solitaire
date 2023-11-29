@@ -4,8 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-public class Setuptests
-{
+public class Setuptests {
     [Test]
     public void TestTheTestCalc_Test() {
         int i = 0;

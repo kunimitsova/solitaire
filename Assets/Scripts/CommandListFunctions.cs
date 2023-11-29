@@ -17,7 +17,6 @@ public class CommandListFunctions : MonoBehaviour {
         DS, // deck to stack
         DF, // deck to foundation
         DD, // deck deal (no movement to tab or found)
-        flip, // when a card is flipped on the tableau - this is not done by the user but automatically when the user moves a card
         none // for when we can't find anything that matches (this will only happen if there's a problem)
     }
 

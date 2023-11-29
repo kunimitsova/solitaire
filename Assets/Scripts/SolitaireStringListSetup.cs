@@ -28,13 +28,23 @@ public class SolitaireStringDeckSetup : MonoBehaviour {
 
     void Start() {
         bottoms = new List<string>[] { bottom0, bottom1, bottom2, bottom3, bottom4, bottom5, bottom6 };
+        Solitaire.GetNewDeck += PrepDeck;
+        Solitaire.GetNewDeck += InitialDeal;
 
+        Solitaire.GetSavedDeck += InitialDeal;
+    }
+
+    private void OnDisable() {
+        Solitaire.GetNewDeck -= PrepDeck;
+        Solitaire.GetNewDeck -= InitialDeal;
+        Solitaire.GetSavedDeck -= InitialDeal;
     }
 
     /// <summary>
     /// Create a new shuffled deck for a new game
     /// </summary>
     public void PrepDeck() {
+        SavedDeck.Clear();
         SavedDeck = GenerateDeck();
         Shuffle(SavedDeck);
     }
@@ -45,13 +55,12 @@ public class SolitaireStringDeckSetup : MonoBehaviour {
             list.Clear();
         }
         deck.Clear();
-        //discardPile.Clear();
 
         deck = new List<string>(SavedDeck);
 
         SolitaireSort();
 
-        // at the end of SolitaireDeal, the deck should only contain the cards that would be set in the talon spot 
+        // at the end of SolitaireSort, the deck should only contain the cards that would be set in the talon spot 
     }
 
     public static List<string> GenerateDeck() {
