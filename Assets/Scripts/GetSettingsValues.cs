@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class App_Initialize : MonoBehaviour {
+public class GetSettingsValues : MonoBehaviour {
     // attached to _scenemanager. 
     // contains Awake
 
@@ -42,7 +42,6 @@ public class App_Initialize : MonoBehaviour {
     }
 
     void Awake() {
-        Debug.Log("AppInit Awake called");
         SetInitValues();
         PlayerSettings.SettingsUpdated += SetInitValues;
     }

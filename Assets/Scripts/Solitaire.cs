@@ -50,9 +50,11 @@ public class Solitaire : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
-        App_Initialize appInit = sceneMgr.GetComponent<App_Initialize>();
+        GetSettingsValues appInit = sceneMgr.GetComponent<GetSettingsValues>();
         bottoms = new List<string>[] { bottom0, bottom1, bottom2, bottom3, bottom4, bottom5, bottom6 };
-        //appInit = sceneMgr.GetComponent<App_Initialize>();
+
+        CardMovement.UndoTalonList += PushBackToDeck;
+        CardMovement.GetPrevCardZ += GetLastTalonCardZ;
 
         localDealAmount = appInit.TalonDealAmount;
         initDeckXOffset = appInit.InitXDeckOffset;
@@ -95,6 +97,7 @@ public class Solitaire : MonoBehaviour {
     public void ResetForPlayerPrefChanges() {
         leftHandMode = Utilities.GetLeftHandMode(PlayerPrefs.GetInt(Constants.LEFT_HAND_MODE));
         initDeckXOffset = Utilities.GetInitDeckXOffset(leftHandMode);
+        localXDeckOffset = Utilities.GetXDeckOffset(leftHandMode);
         ArrangeTopForHand();
         RestackUndealtTalon(leftHandMode);
         RestackDealtCards(leftHandMode);
@@ -282,6 +285,15 @@ public class Solitaire : MonoBehaviour {
         s1.faceUp = true;
         s1.inDeckPile = true;
         card.GetComponent<UpdateSprite>().ShowCardFace();
+    }
+
+    void PushBackToDeck(List<GameObject> putTheseBack) {
+        // the card movement is in the CardMovement script. This is just for putting the GOs back into the talon list.
+       talon.InsertRange(0, putTheseBack); // they go back into the list in reverse order that they were drawn, this is the responsibility of the calling function.
+    }
+
+    float GetLastTalonCardZ() {
+        return talon[talon.Count - 1].transform.position.z;
     }
 
     void RestackUndealtTalon(bool leftHandMode) {
