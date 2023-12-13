@@ -197,6 +197,7 @@ public class Solitaire : MonoBehaviour {
             }
 
         }
+
         foreach (string card in discardPile) {
             if (deck.Contains(card)) {
                 deck.Remove(card);
@@ -289,7 +290,9 @@ public class Solitaire : MonoBehaviour {
 
     void PushBackToDeck(List<GameObject> putTheseBack) {
         // the card movement is in the CardMovement script. This is just for putting the GOs back into the talon list.
-       talon.InsertRange(0, putTheseBack); // they go back into the list in reverse order that they were drawn, this is the responsibility of the calling function.
+        for (int i = 0; i < putTheseBack.Count; i++) {
+            talon.Insert(0, putTheseBack[i]);
+        } // ok this should put them back in the right order??
     }
 
     float GetLastTalonCardZ() {
@@ -313,16 +316,20 @@ public class Solitaire : MonoBehaviour {
     void RestackDealtCards(bool leftHandMode) {
         // get the cards that were already dealt and move them to the appropriate place of the deal
         float xOffset = initDeckXOffset;
+        int dealtCards = 0;
         Transform child;
         foreach (Transform card in deckButton.transform) {
             if (card.CompareTag(Constants.CARD_TAG)) {
                 card.position = new Vector3(deckButton.transform.position.x + xOffset, card.position.y, card.position.z);
+                dealtCards++;
             }
         }
-        for (int i = 0; i < localDealAmount - 1; i++) { // display those last few cards out like if they had been dealt (I know this doesn't cover cases when a card from the deal has been used and then the settings are updated but I've decided it's fine)
-            child = deckButton.transform.GetChild(deckButton.transform.childCount - 1 - i); // e.g. if i = 0, get the last card. if i = 1, get the 2nd to last card.
-            xOffset = initDeckXOffset + ((localDealAmount - 1 - i) * localXDeckOffset);  
-            child.position = new Vector3(deckButton.transform.position.x + xOffset, child.position.y, child.position.z);
+        if (dealtCards > 0) { // only do this if there are some cards that have been dealt
+            for (int i = 0; i < localDealAmount - 1; i++) { // display those last few cards out like if they had been dealt (I know this doesn't cover cases when a card from the deal has been used and then the settings are updated but I've decided it's fine)
+                child = deckButton.transform.GetChild(deckButton.transform.childCount - 1 - i); // e.g. if i = 0, get the last card. if i = 1, get the 2nd to last card.
+                xOffset = initDeckXOffset + ((localDealAmount - 1 - i) * localXDeckOffset);
+                child.position = new Vector3(deckButton.transform.position.x + xOffset, child.position.y, child.position.z);
+            }
         }
     }
 

@@ -24,7 +24,7 @@ public class UserInput : MonoBehaviour {
     delegate void StackCards(GameObject cardToStack, GameObject placeToStack);
     StackCards stackCards;
 
-    public delegate void MoveHandler(GameObject g1, bool flipped);
+    public delegate void MoveHandler(GameObject g1, Transform g1Parent, int row, bool flipped);
     public static event MoveHandler AddToMoveList;
 
     void Start() {
@@ -66,7 +66,7 @@ public class UserInput : MonoBehaviour {
 
     void Deck() {
         //Debug.Log("Hit the deck");
-        AddToMoveList.Invoke(solitaire.deckButton, false); // I don't like it but without unraveling the whole thing this is the best setup rn.
+        AddToMoveList.Invoke(solitaire.deckButton, solitaire.deckButton.transform, 0, false); // I don't like it but without unraveling the whole thing this is the best setup rn.
         DeckClicked?.Invoke();
     }
 
@@ -187,16 +187,15 @@ public class UserInput : MonoBehaviour {
             return;
         }
         // stack a card onto the foundations. The check that it is the correct foundation and the youngest child is on the calling sub
-        //Debug.Log("In StackOnFoundation, s1 is : " + s1.name + " and s2 : " + s2.name);
         
         // if the parent of the card is not another card
         // and it mvoed from a tableau stack
         // and the tableau stack has more card children
         // then there will be a flip.
-        AddToMoveList?.Invoke(cardToStack, isFlip);
+        AddToMoveList?.Invoke(cardToStack, cardToStack.transform.parent, s1.row, isFlip);
 
         LeanTween.move(cardToStack, new Vector3(placeToStack.transform.position.x, placeToStack.transform.position.y, placeToStack.transform.position.z + zOffset), Constants.ANIMATE_MOVE_TO_FOUND);
-        cardToStack.transform.parent = placeToStack.transform;
+        cardToStack.transform.SetParent(placeToStack.transform);
         s1.row = s2.row;
         s1.top = true;
         s1.inDeckPile = false;
@@ -226,11 +225,11 @@ public class UserInput : MonoBehaviour {
         float yOffset = s2.value == 0 ? 0f : Constants.STACK_Y_OFFSET; // no y-Offset when moving to an empty stack
         float zOffset = Constants.Z_OFFSET;
 
-        AddToMoveList?.Invoke(cardToStack, isFlip); // Why am I not doing this in Stack? IDK maybe because there's more checks here additionally? Are they even ever a thing?
+        AddToMoveList?.Invoke(cardToStack, cardToStack.transform.parent, s1.row, isFlip); // Why am I not doing this in Stack? IDK maybe because there's more checks here additionally? Are they even ever a thing?
 
         // stack a card or a stack onto an existing cardstack or empty space. The check that the receiving stack is correct is on the calling sub
         LeanTween.move(cardToStack, new Vector3(placeToStack.transform.position.x, placeToStack.transform.position.y + yOffset, placeToStack.transform.position.z + zOffset), Constants.ANIMATE_MOVE_TO_STACK);
-        cardToStack.transform.parent = placeToStack.transform;
+        cardToStack.transform.SetParent(placeToStack.transform);
 
         s1.row = s2.row;
         parent = cardToStack.transform;
@@ -247,7 +246,7 @@ public class UserInput : MonoBehaviour {
     void Stack(GameObject cardToStack, GameObject placeToStack) {
 
         //Debug.Log("Stack method, cardToStack is " + cardToStack.name + " and placeToStack is " + placeToStack.name);
-        if (placeToStack == this.gameObject) {
+        if ((placeToStack == this.gameObject) || (cardToStack == this.gameObject)) {
             return;
         }
 
@@ -271,13 +270,9 @@ public class UserInput : MonoBehaviour {
         }
 
         // flip any card under the moved card that is still face down
-        if (movedFromBottomStacks) {
+        if (isFlip) {
             lastChild = Utilities.FindYoungestChild(solitaire.bottomPos[row].transform);
-            if (lastChild.CompareTag(Constants.CARD_TAG)) {
-                if (!lastChild.GetComponent<Selectable>().faceUp) {
-                    FlipCard(lastChild.gameObject);
-                }
-            }
+            FlipCard(lastChild.gameObject);
         }
 
         slot1 = this.gameObject;

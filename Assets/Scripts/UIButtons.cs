@@ -7,10 +7,11 @@ public class UIButtons : MonoBehaviour {
 
     //Solitaire solitaire;
     //App_Initialize appInit;
-    public GameObject winScreenUI;
-    public GameObject settingsUI;
-    public GameObject testUI;
-    public GameObject inGameUI;
+    [SerializeField] GameObject winScreenUI;
+    [SerializeField] GameObject settingsUI;
+    [SerializeField] GameObject testUI;
+    [SerializeField] GameObject inGameUI;
+    [SerializeField] GameObject creditsUI;
 
     public static event Action GameRenewed;
 
@@ -32,6 +33,7 @@ public class UIButtons : MonoBehaviour {
         settingsUI.SetActive(false);
         testUI.SetActive(false);
         inGameUI.SetActive(true);
+        creditsUI.SetActive(false);
     }
  
     public void ReplayGame() {
@@ -50,11 +52,14 @@ public class UIButtons : MonoBehaviour {
     }
 
     public void Autoplay() { // right now this just has testing stuff related to the undo system
+        Debug.Log("Autoplay Clicked");
         TestButtonClicked?.Invoke(Constants.TEST_AUTOPLAY);
     }
 
     public void Undo() {
+        Debug.Log("Undo clicked");
         UndoClicked?.Invoke();
+      //  TestButtonClicked?.Invoke(Constants.TEST_UNDO);
     }
 
     public void SeeSettings() {
@@ -70,6 +75,14 @@ public class UIButtons : MonoBehaviour {
         winScreenUI.SetActive(false);
         testUI.SetActive(false);
         inGameUI.SetActive(true);
+    }
+
+    public void Credits() {
+        creditsUI.SetActive(true);
+    }
+
+    public void CloseCredits() {
+        creditsUI.SetActive(false);
     }
     
     void CloseWin() {

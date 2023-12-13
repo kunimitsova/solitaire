@@ -33,6 +33,7 @@ public class PlayerSettings : MonoBehaviour {
     public void SetStartingPrefs() {
         tog.isOn = (PlayerPrefs.GetInt(Constants.LEFT_HAND_MODE) == Constants.LEFT_HAND_MODE_TRUE);
         slide.value = (float)PlayerPrefs.GetInt(Constants.TALON_DEAL_AMOUNT);
+        slide.GetComponentInChildren<TMP_Text>().text = ((int)slide.value).ToString();
         tog.onValueChanged.AddListener(delegate { LHMtoggleClicked(tog.isOn); });
         slide.onValueChanged.AddListener(delegate { DealSliderChanged(slide.value); });
     }

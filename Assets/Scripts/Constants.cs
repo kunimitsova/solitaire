@@ -12,7 +12,7 @@ public static class Constants {
     public const string IOS_AD_UNIT_ID_BANNER = "";
 
     // Top area left/right handed option values
-    public const float LHM_DECK_X = 0.17f; // this is for DECK ITEM not DECK BUTTON
+    public const float LHM_DECK_X = 0.13f; // this is for DECK ITEM not DECK BUTTON
     public const float LHM_DECK_Y = 0.22f; // this is for DECK ITEM not DECK BUTTON
     public const float LHM_TOP_X = 0.01f;
     public const float LHM_TOP_Y = 0.08f; // this is for TOP SECTION not TOP SLOTS
@@ -25,7 +25,7 @@ public static class Constants {
 
     // card instantiate values
     public const float STACK_Y_OFFSET = -0.25f;
-    public const float LHM_INIT_DECK_X_OFFSET = 0.686f;
+    public const float LHM_INIT_DECK_X_OFFSET = 0.68f;
     public const float RHM_INIT_DECK_X_OFFSET = -1.126f;
     public const float DECK_X_OFFSET = 0.22f;
     public const float Z_OFFSET = -0.02f;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Undo : MonoBehaviour {
-    // attach to UNDO object (which might not exist yet)
+    // attach to UNDO object
     // has Start
 
     // delegate for Flipping a card, takes a Gameobject to flip
@@ -26,16 +26,18 @@ public class Undo : MonoBehaviour {
 
         // if the g1 == DeckBUtton then UNDO the deal , meaning place the last [user talon deal amount] back into the DeckButton object
         if (g1.CompareTag(Constants.DECK_TAG)) {
-            MoveUndealt(g1);
+            MoveUndealt?.Invoke(g1);
         }
 
         // make sure g1 is card before doing card actions
         if (g1.CompareTag(Constants.CARD_TAG)) {
             if ((youngestChild != origParent) && flipped) { // if the current faceup card in the stack is NOT the parent of the g1 and a flip was registered (tbh do I need both of these? idk.)
-                FlipCard(youngestChild.gameObject);
+                FlipCard?.Invoke(youngestChild.gameObject);
             }
+
+            MoveCard?.Invoke(g1, origParent.gameObject, Constants.ANIMATE_DEAL_FROM_TALON);
+
             g1.transform.SetParent(origParent);// give the card the original parent
-            MoveCard(g1, origParent.gameObject, Constants.ANIMATE_DEAL_FROM_TALON);
         }
     }
 }

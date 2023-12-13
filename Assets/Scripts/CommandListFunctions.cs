@@ -14,14 +14,15 @@ public class CommandListFunctions : MonoBehaviour {
         public GameObject Card; // name of the card that acted
         public Transform MovedFrom; // parent obj of the card that moved
 //        public CardMovement CardMovedFrom; // code telling where the card moved from.
-        public int? Row; // row that the card was in initially in. it will be null for cards from the deck, so DT, DF, and DD all have null Row.
+        public int Row; // row that the card was in initially in. it will be null for cards from the deck, so DT, DF, and DD all have null Row.
         public bool Flip; // if a card under the moved card was flipped face up after the move (only in SS, SF moves)
 
         public override string ToString() {
             string str = (Card.name == null) ? "null" : Card.name.ToString();
-            string str1 = (MovedFrom == null) ? "null sb none" : MovedFrom.name.ToString();
-            string str2 = Row == null ? "null" : Row.ToString();
-            return "Card : " + str + " move : " + str1 + " row : " + str2;
+            string str1 = (MovedFrom == null) ? "null" : MovedFrom.name.ToString();
+            string str2 = Row.ToString();
+            string str3 = Flip.ToString();
+            return "Card : " + str + " move : " + str1 + " row : " + str2 + " flipped : " + str3;
         }
     }
 
@@ -55,11 +56,12 @@ public class CommandListFunctions : MonoBehaviour {
         
     }
 
-    void AddToMoveList(GameObject g1, bool wasFlip) {
+    void AddToMoveList(GameObject g1, Transform origParent, int row, bool wasFlip) {
+
         _undo.Clear(); // do not have any undo actions when adding new actions to the Move List.
-        Transform move = g1.transform.parent;
+        Transform move = origParent;
         GameObject card = g1;
-        int? row;
+        int localRow;
         CardAction ca;
 
        // check if this is a valid move in the CALLING function
@@ -67,26 +69,29 @@ public class CommandListFunctions : MonoBehaviour {
         if (g1.CompareTag(Constants.DECK_TAG)) { // It was a deal of the deck talon
             move = g1.transform; 
             card = g1;
-            row = null;
+            localRow = 0;
         }
-        // if it's not a deck flip get the row
+        // if it's not a deck deal get the row
         else {
-            row = g1.GetComponent<Selectable>().row;
+            localRow = row;
         }
 
         //cardName = g1.CompareTag(Constants.CARD_TAG) ? g1.name : null;
 
         ca.Card = card;
         ca.MovedFrom = move;
-        ca.Row = row;
+        ca.Row = localRow;
         ca.Flip = wasFlip;
 
         _moveList.Add(ca);
-
+        Debug.Log("Added to move list : " + ca.ToString());
     }
 
     public void DoUndo() {
         CardAction ca = _moveList[_moveList.Count - 1];
+        Debug.Log("Undo move: " + ca.Card.name);
+        UndoMove?.Invoke(ca.Card, ca.MovedFrom, ca.Row, ca.Flip);
+        RemoveFromMoveList();
 
     }
 
