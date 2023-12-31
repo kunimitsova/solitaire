@@ -15,12 +15,12 @@ public class CardMovement : MonoBehaviour {
 
     private void Start() {
         getSettings = FindObjectOfType<GetSettingsValues>();
-        Undo.MoveUndealt += MoveUndealDealtCards;
+        Undo.UndoDealtCards += MoveUndealDealtCards;
         Undo.MoveCard += MoveCard;
     }
 
     private void OnDisable() {
-        Undo.MoveUndealt -= MoveUndealDealtCards;
+        Undo.UndoDealtCards -= MoveUndealDealtCards;
         Undo.MoveCard -= MoveCard;
     }
 
@@ -134,7 +134,7 @@ public class CardMovement : MonoBehaviour {
         List<GameObject> dealtList = new List<GameObject>();
         Transform card;
         Selectable cardSel;
-        int localDealtAmount = (deckButton.transform.childCount > getSettings.TalonDealAmount) ? deckButton.transform.childCount : getSettings.TalonDealAmount; // covers cases when there are fewer than TalonDaelAmount in the deal being undone
+        int localDealtAmount = (deckButton.transform.childCount < getSettings.TalonDealAmount) ? deckButton.transform.childCount : getSettings.TalonDealAmount; // covers cases when there are fewer than TalonDaelAmount in the deal being undone
 
         float zValue = ( GetPrevCardZ == null) ? 0f : GetPrevCardZ.Invoke(); // get the z-position of the last item in the current Talon
 

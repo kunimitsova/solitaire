@@ -88,6 +88,9 @@ public class CommandListFunctions : MonoBehaviour {
     }
 
     public void DoUndo() {
+        if (_moveList.Count < 1) {
+            return;
+        }
         CardAction ca = _moveList[_moveList.Count - 1];
         Debug.Log("Undo move: " + ca.Card.name);
         UndoMove?.Invoke(ca.Card, ca.MovedFrom, ca.Row, ca.Flip);

@@ -6,7 +6,7 @@ public class GetSettingsValues : MonoBehaviour {
     // attached to _scenemanager. 
     // contains Awake
 
-    private int talonDealAmount; // the number of cards to deal from the talon each time
+    private static int talonDealAmount; // the number of cards to deal from the talon each time
     public int TalonDealAmount { // good example of property
         get {
             return talonDealAmount;
@@ -15,7 +15,7 @@ public class GetSettingsValues : MonoBehaviour {
             talonDealAmount = value;
         }
     }
-    private bool leftHandedMode;
+    private static bool leftHandedMode;
     public bool LeftHandedMode {
         get {
             return leftHandedMode;
@@ -25,14 +25,14 @@ public class GetSettingsValues : MonoBehaviour {
         }
     }
 
-    private float initXDeckOffset;
+    private static float initXDeckOffset;
     public float InitXDeckOffset {
         get {
             return initXDeckOffset;
         }
     }
-    private float xDeckOffset;
-    public float XDeckOffset { 
+    private static float xDeckOffset;
+    public float XDeckOffset {
         get {
             return xDeckOffset;
         }
@@ -41,9 +41,20 @@ public class GetSettingsValues : MonoBehaviour {
         }
     }
 
+    private static float talonDealtStackXPos;
+    public float TalonDealtStackXPos {
+        get {
+            return talonDealtStackXPos;
+        }
+        set {
+            talonDealtStackXPos = value;
+        }
+    }
+
     void Awake() {
         SetInitValues();
         PlayerSettings.SettingsUpdated += SetInitValues;
+        Debug.Log("TalonDeckXOffset = " + talonDealtStackXPos.ToString());
     }
 
     private void OnDisable() {
@@ -51,9 +62,38 @@ public class GetSettingsValues : MonoBehaviour {
     }
 
     public void SetInitValues() {
-        talonDealAmount = PlayerPrefs.GetInt(Constants.TALON_DEAL_AMOUNT, 1);
-        leftHandedMode = Utilities.GetLeftHandMode(PlayerPrefs.GetInt(Constants.LEFT_HAND_MODE, Constants.LEFT_HAND_MODE_FALSE));
-        initXDeckOffset = Utilities.GetInitDeckXOffset(leftHandedMode);
-        xDeckOffset = Constants.DECK_X_OFFSET; 
+        talonDealAmount = GetTalonDealAmount();
+        leftHandedMode = GetLeftHandModeFromInt(PlayerPrefs.GetInt(Constants.LEFT_HAND_MODE, Constants.LEFT_HAND_MODE_FALSE));
+        initXDeckOffset = GetInitDeckXOffset(leftHandedMode);
+        xDeckOffset = GetXDeckOffset(leftHandedMode);
+        talonDealtStackXPos = GetTalonDeckStackXPos(leftHandedMode);
+    }
+
+    float GetXDeckOffset(bool leftHandMode) {
+        float x = leftHandMode ? Constants.DECK_X_OFFSET : Constants.DECK_X_OFFSET;
+        return x;
+    }
+
+    float GetTalonDeckStackXPos(bool leftHandMode) {
+        float x = leftHandMode ? Constants.LHM_INIT_DECK_X_OFFSET : -Constants.LHM_INIT_DECK_X_OFFSET;
+        return x;
+    }
+
+    public static int GetTalonDealAmount() {
+        int i = PlayerPrefs.GetInt(Constants.TALON_DEAL_AMOUNT, 1);
+        return i;
+    }
+
+
+    float GetInitDeckXOffset(bool leftHandMode) {
+        float xOffset = GetXDeckOffset(leftHandMode);
+        int talonDealAmount = GetTalonDealAmount();
+        float x = leftHandMode ? Constants.LHM_INIT_DECK_X_OFFSET : -Constants.LHM_INIT_DECK_X_OFFSET - ((talonDealAmount - 1) * xOffset);
+        return x;
+    }
+
+    bool GetLeftHandModeFromInt(int lhmInt) {
+        bool b = lhmInt == Constants.LEFT_HAND_MODE_TRUE;
+        return b;
     }
 }

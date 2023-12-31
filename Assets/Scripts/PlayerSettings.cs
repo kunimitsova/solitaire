@@ -4,6 +4,7 @@ using TMPro;
 
 public class PlayerSettings : MonoBehaviour {
     // attached to Canvas
+    // contains Awake, Enable, Disable
 
     [SerializeField] GameObject settingsUI;
     [SerializeField] Toggle tog;
@@ -13,7 +14,7 @@ public class PlayerSettings : MonoBehaviour {
     public static OnPlayerPrefsUpdate SettingsUpdated;
 
     public void Awake() {
-        UIButtons.SettingsClicked += OpenPlayerSettings;
+        //UIButtons.SettingsClicked += OpenPlayerSettings;
     }
 
     public void OnEnable() {
@@ -24,6 +25,7 @@ public class PlayerSettings : MonoBehaviour {
 
     public void OnDisable() {
         UIButtons.SettingsClicked -= OpenPlayerSettings;
+
     }
 
     public void ApplySettings() {
@@ -44,14 +46,18 @@ public class PlayerSettings : MonoBehaviour {
 
     public void ClosePlayerSettings() {
         int lhmInt = tog.isOn ? Constants.LEFT_HAND_MODE_TRUE : Constants.LEFT_HAND_MODE_FALSE;
+        Debug.Log("Player Settings - lhmInt = " + lhmInt.ToString());
         int dealAmt = (int)slide.value;
+        Debug.Log("Player Settings - dealAmt = " + dealAmt.ToString());
         SetPlayerPrefs(lhmInt, dealAmt);
         ApplySettings();
         settingsUI.SetActive(false);
     }
     public void SetPlayerPrefs(int LhmInt, int dealAmt) {
         PlayerPrefs.SetInt(Constants.LEFT_HAND_MODE, LhmInt);
+        Debug.Log("The int set for Player Pref LHM = " + PlayerPrefs.GetInt(Constants.LEFT_HAND_MODE));
         PlayerPrefs.SetInt(Constants.TALON_DEAL_AMOUNT, dealAmt);
+        Debug.Log("the int set for Talon deal amt = " + PlayerPrefs.GetInt(Constants.TALON_DEAL_AMOUNT));
         PlayerPrefs.Save();
     }
     

@@ -44,22 +44,24 @@ public class Solitaire : MonoBehaviour {
 
     float talonZOffset = 0f;
     int localDealAmount;
-    float initDeckXOffset;
+    float initDeckXOffset; // for LHM it is Positive and for LHM it is Negative
     bool leftHandMode;
-    float localXDeckOffset;
+    float localXDeckOffset; 
+    float talonStackXPos;
+
+    GetSettingsValues settingsValues;
 
     // Start is called before the first frame update
     void Start() {
-        GetSettingsValues appInit = sceneMgr.GetComponent<GetSettingsValues>();
+        settingsValues = sceneMgr.GetComponent<GetSettingsValues>();
         bottoms = new List<string>[] { bottom0, bottom1, bottom2, bottom3, bottom4, bottom5, bottom6 };
 
         CardMovement.UndoTalonList += PushBackToDeck;
         CardMovement.GetPrevCardZ += GetLastTalonCardZ;
+        PlayerSettings.SettingsUpdated += ResetForPlayerPrefChanges;
+        //Autoplay.GameWon += WinCondition;
 
-        localDealAmount = appInit.TalonDealAmount;
-        initDeckXOffset = appInit.InitXDeckOffset;
-        leftHandMode = appInit.LeftHandedMode;
-        localXDeckOffset = appInit.XDeckOffset; // this used to be tied to lefthandmode but is not anymore
+        SetLocalVarsForPlayerPrefs();
 
         InitTableau(); // there should be an interface for this
 
@@ -73,10 +75,10 @@ public class Solitaire : MonoBehaviour {
         UIButtons.GameStarted += PlayCards;
         UIButtons.ReplayClicked += PrepDeck;
         UserInput.DeckClicked += DealFromTalon;
-        PlayerSettings.SettingsUpdated += ResetForPlayerPrefChanges;
     }
     private void OnDisable() {
-
+        CardMovement.UndoTalonList -= PushBackToDeck;
+        CardMovement.GetPrevCardZ -= GetLastTalonCardZ;
         UIButtons.GameRenewed -= ResetTable;
         UIButtons.GameStarted -= PlayCards;
         UIButtons.ReplayClicked -= PrepDeck;
@@ -85,6 +87,7 @@ public class Solitaire : MonoBehaviour {
     }
 
     public void ArrangeTopForHand() { // idk if this is the best way to do this ....
+        Debug.Log("Arrange top for hand (soliatire)");
         float deckX = leftHandMode ? Constants.LHM_DECK_X : Constants.RHM_DECK_X;
         float deckY = leftHandMode ? Constants.LHM_DECK_Y : Constants.RHM_DECK_Y;
         float topX = leftHandMode ? Constants.LHM_TOP_X : Constants.RHM_TOP_X;
@@ -94,14 +97,21 @@ public class Solitaire : MonoBehaviour {
         topObject.transform.position = new Vector3(topX, topY, z);
     }
 
+    void SetLocalVarsForPlayerPrefs() {
+        localDealAmount = settingsValues.TalonDealAmount;
+        initDeckXOffset = settingsValues.InitXDeckOffset;
+        leftHandMode = settingsValues.LeftHandedMode;
+        localXDeckOffset = settingsValues.XDeckOffset; // this used to be tied to lefthandmode but is not anymore
+        talonStackXPos = settingsValues.TalonDealtStackXPos; // this was a different thing before but I'm keeping it as a value because maybe I need it for something else?
+        Debug.Log("SetLocalVarsorPlayerPrefs (solitaire)");
+    }
+
     public void ResetForPlayerPrefChanges() {
-        leftHandMode = Utilities.GetLeftHandMode(PlayerPrefs.GetInt(Constants.LEFT_HAND_MODE));
-        initDeckXOffset = Utilities.GetInitDeckXOffset(leftHandMode);
-        localXDeckOffset = Utilities.GetXDeckOffset(leftHandMode);
+         Debug.Log("Reset for player pref changes (solitaire)");
+        SetLocalVarsForPlayerPrefs();
         ArrangeTopForHand();
         RestackUndealtTalon(leftHandMode);
         RestackDealtCards(leftHandMode);
-        localDealAmount = PlayerPrefs.GetInt(Constants.TALON_DEAL_AMOUNT);
     }
 
     public void InitTableau() {
@@ -229,6 +239,7 @@ public class Solitaire : MonoBehaviour {
         float xOffset = initDeckXOffset; // the x-offset o the first card is Init x-offset, this is how much offset for this 'round' of dealing
         float incrXOffset = localXDeckOffset; // xOffset will be different depending on LeftHandedMode
         float incrZOffset = Constants.Z_OFFSET; // zOffset is coming towards the camera when the card is dealt and going away when they go back into the deck (UNDEALT_CARD_Z_OFFSET)
+
         GameObject newCard;
         Transform child;
 
@@ -293,10 +304,21 @@ public class Solitaire : MonoBehaviour {
         for (int i = 0; i < putTheseBack.Count; i++) {
             talon.Insert(0, putTheseBack[i]);
         } // ok this should put them back in the right order??
+        talonAmountText.text = talon.Count.ToString();
     }
 
     float GetLastTalonCardZ() {
-        return talon[talon.Count - 1].transform.position.z;
+        float zPos;
+        zPos = talon.Count < 1 ? 0f : talon[talon.Count - 1].transform.position.z;
+        return zPos;
+    }
+
+    GameObject GetTopCardFromDealtTalon() {
+        GameObject card = Utilities.FindYoungestChild(deckButton.transform).gameObject;
+        if (card.CompareTag(Constants.CARD_TAG)) {
+            return card;
+        }
+        else { return this.gameObject; }
     }
 
     void RestackUndealtTalon(bool leftHandMode) {
@@ -446,4 +468,5 @@ public class Solitaire : MonoBehaviour {
         }
         return (s1.suit == s2.suit) && (s1.value == s2.value + 1);
     }
+
 }

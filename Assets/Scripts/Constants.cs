@@ -20,13 +20,13 @@ public static class Constants {
 
     public const float RHM_DECK_X = 3.989f;
     public const float RHM_DECK_Y = 0.22f;
-    public const float RHM_TOP_X = -1.904f;
+    public const float RHM_TOP_X = -1.91f;
     public const float RHM_TOP_Y = 0.08f;
 
     // card instantiate values
     public const float STACK_Y_OFFSET = -0.25f;
-    public const float LHM_INIT_DECK_X_OFFSET = 0.68f;
-    public const float RHM_INIT_DECK_X_OFFSET = -1.126f;
+    public const float LHM_INIT_DECK_X_OFFSET = 0.6f;
+    //public const float RHM_INIT_DECK_X_OFFSET = -1.126f; // not using anymore. This is caluclated based on LHM and TalonDealAmount.
     public const float DECK_X_OFFSET = 0.22f;
     public const float Z_OFFSET = -0.02f;
     public const float UNDEALT_CARD_Z_OFFSET = 0.02f;  // for cards to stack behind deckButton

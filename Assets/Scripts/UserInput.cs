@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 public class UserInput : MonoBehaviour {
     // attached to SolitaireGame
-    // contains Start, Update
+    // contains Start, Update, OnDisable
 
     public GameObject gameOverUI;
     //public GameObject solitaireGame;
@@ -30,9 +30,13 @@ public class UserInput : MonoBehaviour {
     void Start() {
         solitaire = gameObject.GetComponent<Solitaire>(); // well I decided not to rewire the whole thing...
         slot1 = this.gameObject;  // this is the kindof inelegant way to determine if a card is currently selected.
-        UIButtons.AutoplayClicked += AutoPlay;
         Undo.FlipCard += FlipCard;
-       
+    }
+
+    private void OnDisable() {
+        Undo.FlipCard -= FlipCard;
+        stackCondition = null;
+        stackCards = null;
     }
 
     void Update() {
@@ -280,43 +284,5 @@ public class UserInput : MonoBehaviour {
         stackCards = null;
     }
 
-    void AutoPlay() { // this does not do the thing yet.
-        GameObject oneSelected;
-        oneSelected = Utilities.FindYoungestChild(solitaire.deckButton.transform).gameObject;
-        for (int i = 0; i < solitaire.topPos.Length; i++) {
-            // can't I just go through the positions using selected = solitaire.topPos[i].GetComponent<GameObject> and use Stackable?
-            Selectable stack = solitaire.topPos[i].GetComponent<Selectable>();
-            if (oneSelected.GetComponent<Selectable>().value == Constants.ACE_VALUE) { // card is an Ace
-                if (solitaire.topPos[i].GetComponent<Selectable>().value == 0) {
-                    slot1 = oneSelected;
-                    Stack(slot1, stack.gameObject);
-                    break;
-                }
-            }
-            else {
-                if ((solitaire.topPos[i].GetComponent<Selectable>().suit == slot1.GetComponent<Selectable>().suit) &&
-                    (solitaire.topPos[i].GetComponent<Selectable>().value == slot1.GetComponent<Selectable>().value - 1)) {
-                    if (oneSelected.transform.childCount == 0) {  // if it is the last card in the cardstack
-                        slot1 = oneSelected;
-                        string lastCardName = stack.suit + stack.value.ToString();
-                        if (stack.value == Constants.ACE_VALUE) {
-                            lastCardName = stack.suit + Constants.ACE_STRING;
-                        }
-                        if (stack.value == Constants.JACK_VALUE) {
-                            lastCardName = stack.suit + Constants.JACK_STRING;
-                        }
-                        if (stack.value == Constants.QUEEN_VALUE) {
-                            lastCardName = stack.suit + Constants.QUEEN_STRING;
-                        }
-                        if (stack.value == Constants.KING_VALUE) {
-                            lastCardName = stack.suit + Constants.KING_STRING;
-                        }
-                        GameObject lastCard = GameObject.Find(lastCardName);
-                        Stack(slot1, lastCard);
-                        break;
-                    }
-                }
-            }
-        }
-    }
+
 }
